@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Artesanos MX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7; --arena-dark: #EDD9B0;
+      --verde: #3A6B4A; --verde-light: #4E8F63;
+      --text: #2C2C2C; --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); }
+
+    /* NAV */
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); }
+    .nav-logo span { color: var(--verde); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-cta { background: var(--terracota) !important; color: var(--white) !important; padding: 0.5rem 1.2rem; border-radius: 6px; }
+
+    /* HERO */
+    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 88vh; align-items: center; padding: 4rem 5rem; gap: 3rem; }
+    .hero-text h1 { font-family: 'Playfair Display', serif; font-size: 3.2rem; line-height: 1.2; margin-bottom: 1.2rem; }
+    .hero-text h1 em { font-style: normal; color: var(--terracota); }
+    .hero-text p { font-size: 1.1rem; color: var(--text-light); line-height: 1.8; margin-bottom: 2rem; max-width: 480px; }
+    .hero-buttons { display: flex; gap: 1rem; }
+    .btn-primary { background: var(--terracota); color: var(--white); padding: 0.85rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; transition: background 0.2s; }
+    .btn-primary:hover { background: var(--terracota-dark); }
+    .btn-secondary { background: transparent; color: var(--verde); padding: 0.85rem 2rem; border: 2px solid var(--verde); border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; transition: all 0.2s; }
+    .btn-secondary:hover { background: var(--verde); color: var(--white); }
+    .hero-visual { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .hero-card { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 0.5rem; }
+    .hero-card:nth-child(2) { margin-top: 2rem; }
+    .hero-card:nth-child(3) { margin-top: -1rem; }
+    .hero-card .emoji { font-size: 2.5rem; }
+    .hero-card h3 { font-size: 0.95rem; font-weight: 600; }
+    .hero-card p { font-size: 0.8rem; color: var(--text-light); }
+    .hero-card .price { font-weight: 700; color: var(--terracota); font-size: 1.1rem; }
+
+    /* STATS */
+    .stats { background: var(--terracota); padding: 2.5rem 5rem; display: flex; justify-content: space-around; gap: 2rem; flex-wrap: wrap; }
+    .stat { text-align: center; color: var(--white); }
+    .stat h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; }
+    .stat p { font-size: 0.9rem; opacity: 0.85; margin-top: 0.3rem; }
+
+    /* PRODUCTOS */
+    .productos-section { padding: 5rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; }
+    .section-header h2 { font-family: 'Playfair Display', serif; font-size: 2.2rem; }
+    .section-header a { color: var(--terracota); text-decoration: none; font-weight: 500; }
+    .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+    .producto-card { background: var(--white); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.2s, box-shadow 0.2s; }
+    .producto-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.12); }
+    .producto-img { background: var(--arena-dark); height: 180px; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+    .producto-info { padding: 1.2rem; }
+    .producto-info h3 { font-weight: 600; margin-bottom: 0.4rem; text-transform: capitalize; }
+    .producto-info p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.8rem; line-height: 1.5; }
+    .producto-footer { display: flex; justify-content: space-between; align-items: center; }
+    .producto-precio { font-weight: 700; font-size: 1.15rem; color: var(--terracota); }
+    .btn-comprar { background: var(--verde); color: var(--white); border: none; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-comprar:hover { background: var(--verde-light); }
+    .loading { text-align: center; padding: 3rem; color: var(--text-light); grid-column: 1/-1; }
+    .error-msg { text-align: center; padding: 2rem; color: var(--terracota); background: #fdf0ea; border-radius: 10px; grid-column: 1/-1; }
+
+    /* FOOTER */
+    footer { background: var(--text); color: var(--white); padding: 3rem 5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--arena); }
+    footer p { color: #aaa; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">Artesanos<span>MX</span></div>
+    <ul class="nav-links">
+      <li><a href="#">Inicio</a></li>
+      <li><a href="#productos">Productos</a></li>
+      <li><a href="#">Artesanos</a></li>
+      <li><a href="#" class="nav-cta">Vender</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Arte hecho a mano, <em>directo del artesano</em> a ti</h1>
+      <p>Conectamos a artesanos mexicanos con personas que valoran lo auténtico. Cada pieza tiene una historia, una tradición y un alma.</p>
+      <div class="hero-buttons">
+        <a href="#productos" class="btn-primary">Explorar productos</a>
+        <a href="#" class="btn-secondary">Ser artesano</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card"><span class="emoji">🏺</span><h3>Cerámica Talavera</h3><p>Hecha en Puebla</p><span class="price">$320</span></div>
+      <div class="hero-card"><span class="emoji">🧵</span><h3>Bordado Oaxaqueño</h3><p>Lana 100% natural</p><span class="price">$185</span></div>
+      <div class="hero-card"><span class="emoji">🪡</span><h3>Pulsera Huichol</h3><p>Chaquira artesanal</p><span class="price">$95</span></div>
+      <div class="hero-card"><span class="emoji">🪘</span><h3>Tambor Rarámuri</h3><p>Madera y piel natural</p><span class="price">$540</span></div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><h2>+200</h2><p>Artesanos registrados</p></div>
+    <div class="stat"><h2>+1,500</h2><p>Productos únicos</p></div>
+    <div class="stat"><h2>32</h2><p>Estados de México</p></div>
+    <div class="stat"><h2>100%</h2><p>Hecho a mano</p></div>
+  </div>
+
+  <section class="productos-section" id="productos">
+    <div class="section-header">
+      <h2>Productos destacados</h2>
+      <a href="#">Ver todos →</a>
+    </div>
+    <div class="productos-grid" id="productosGrid">
+      <div class="loading">Cargando productos...</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">ArtesanosMX</div>
+    <p>© 2026 ArtesanosMX — Hecho con ❤️ en México</p>
+  </footer>
+
+  <script>
+    const emojis = ['🏺','🧵','🪡','🪘','🌺','🎨','🪆','🧶','💎','🌿'];
+
+    async function cargarProductos() {
+      const grid = document.getElementById('productosGrid');
+      try {
+        const res = await fetch('http://localhost:3000/api/productos');
+        if (!res.ok) throw new Error();
+        const productos = await res.json();
+        if (productos.length === 0) {
+          grid.innerHTML = '<div class="error-msg">No hay productos registrados aún.</div>';
+          return;
+        }
+        grid.innerHTML = productos.map((p, i) => `
+          <div class="producto-card">
+            <div class="producto-img">${emojis[i % emojis.length]}</div>
+            <div class="producto-info">
+              <h3>${p.nombre}</h3>
+              <p>${p.descripcion}</p>
+              <div class="producto-footer">
+                <span class="producto-precio">$${Number(p.precio).toLocaleString('es-MX')}</span>
+                <button class="btn-comprar">Agregar</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch(e) {
+        grid.innerHTML = '<div class="error-msg">⚠️ No se pudo conectar con la API. Asegúrate de que el servidor esté corriendo en <strong>localhost:3000</strong></div>';
+      }
+    }
+
+    cargarProductos();
+  </script>
+</body>
+</html>
