@@ -1,13 +1,21 @@
 const express = require('express');
-const app = express();
+const cors    = require('cors');
+const path    = require('path');
+const app     = express();
 
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// ── Servir imágenes estáticas ──
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const productoRoutes = require('./routes/producto.routes');
+// ── Rutas API ──
+app.use('/api/auth',      require('./routes/auth.routes'));
+app.use('/api/productos', require('./routes/producto.routes'));
+app.use('/api/categorias',require('./routes/categoria.routes'));
+app.use('/api/artesanos', require('./routes/artesano.routes'));
+app.use('/api/admin',     require('./routes/admin.routes'));
+app.use('/api/upload',    require('./routes/upload.routes'));
 
-app.use('/productos', productoRoutes);
-app.use(express.static('public'));
-
-app.listen(3000, () => {
-  console.log('Servidor en http://localhost:3000');
-});
+module.exports = app;

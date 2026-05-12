@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrito — ArtesanosMX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7;     --arena-dark: #EDD9B0;
+      --verde: #3A6B4A;     --verde-light: #4E8F63;
+      --text: #2C2C2C;      --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── NAV UNIFICADO ── */
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
+    .nav-logo span { color: var(--verde); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-links a.active { color: var(--terracota); font-weight: 600; }
+    .nav-btn-carrito { background: var(--terracota); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .nav-btn-carrito:hover { background: var(--terracota-dark); }
+    .nav-divider { width: 1px; height: 20px; background: #E8E0D5; }
+    .nav-btn-cerrar { background: none; border: 1px solid #E8E0D5; color: var(--text-light); padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn-cerrar:hover { border-color: var(--terracota); color: var(--terracota); }
+    .nav-usuario-chip { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; background: var(--arena); border: 1px solid var(--arena-dark); padding: 0.4rem 0.9rem; border-radius: 20px; transition: all 0.2s; }
+    .nav-usuario-chip:hover { border-color: var(--verde); background: #e8f0eb; }
+    .nav-usuario-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav-usuario-chip .nombre { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .nav-btn-login { background: var(--verde); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn-login:hover { background: var(--verde-light); }
+
+    /* ── STEPPER ── */
+    .stepper { background: var(--white); border-bottom: 1px solid #ede5da; padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: center; gap: 0.8rem; }
+    .step { display: flex; align-items: center; gap: 0.5rem; }
+    .step-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+    .step-num.active { background: var(--terracota); color: var(--white); }
+    .step-num.done   { background: var(--verde); color: var(--white); }
+    .step-num.pending { background: #ddd; color: var(--text-light); }
+    .step-label { font-size: 0.85rem; font-weight: 500; }
+    .step-label.active { color: var(--terracota); font-weight: 600; }
+    .step-label.pending { color: var(--text-light); }
+    .step-line { width: 60px; height: 2px; background: #ddd; border-radius: 2px; }
+
+    /* ── LAYOUT ── */
+    .page-container { max-width: 1100px; margin: 2.5rem auto; padding: 0 2rem; display: grid; grid-template-columns: 1fr 380px; gap: 2rem; flex: 1; width: 100%; }
+
+    /* ── COLUMNA PRODUCTOS ── */
+    .col-productos {}
+    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+    .col-header h2 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; }
+    .badge-count { background: var(--terracota); color: var(--white); font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 20px; }
+    .btn-vaciar { background: none; border: 1px solid #ddd; color: var(--text-light); padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
+    .btn-vaciar:hover { border-color: #c0392b; color: #c0392b; }
+
+    .cart-list { display: flex; flex-direction: column; gap: 0.8rem; }
+
+    /* Tarjeta item */
+    .cart-item { background: var(--white); border: 1px solid #ede5da; border-radius: 14px; padding: 1.1rem 1.3rem; display: flex; align-items: center; gap: 1rem; transition: box-shadow 0.2s; }
+    .cart-item:hover { box-shadow: 0 4px 16px rgba(192,98,42,0.09); }
+    .item-img { width: 72px; height: 72px; border-radius: 10px; background: var(--arena-dark); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: var(--text-light); font-style: italic; flex-shrink: 0; }
+    .item-info { flex: 1; }
+    .item-nombre { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .item-artesano { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.4rem; }
+    .item-tag { display: inline-block; background: var(--arena); border: 1px solid var(--arena-dark); color: var(--text-light); font-size: 0.72rem; padding: 0.15rem 0.55rem; border-radius: 20px; }
+    .item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; flex-shrink: 0; }
+    .btn-delete { background: none; border: none; color: #ccc; font-size: 1rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
+    .btn-delete:hover { color: #c0392b; }
+    .item-precio { font-weight: 700; font-size: 1rem; color: var(--terracota); }
+
+    /* Qty control */
+    .qty-control { display: inline-flex; align-items: center; border: 1px solid #e0d8ce; border-radius: 20px; overflow: hidden; background: var(--arena); }
+    .qty-btn { width: 30px; height: 30px; border: none; background: transparent; font-size: 1rem; font-weight: 700; color: var(--terracota); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .qty-btn:hover { background: var(--arena-dark); }
+    .qty-display { min-width: 28px; text-align: center; font-weight: 600; font-size: 0.88rem; }
+
+    /* Animación eliminar */
+    .removing { animation: slideOut 0.3s ease forwards; }
+    @keyframes slideOut { to { opacity: 0; transform: translateX(24px); max-height: 0; padding: 0; margin: 0; overflow: hidden; } }
+
+    /* Carrito vacío */
+    .empty-cart { text-align: center; padding: 4rem 2rem; display: none; }
+    .empty-cart .emoji { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+    .empty-cart h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .empty-cart p { color: var(--text-light); margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .btn-ir-catalogo { background: var(--terracota); color: var(--white); border: none; padding: 0.7rem 2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; text-decoration: none; transition: background 0.2s; display: inline-block; }
+    .btn-ir-catalogo:hover { background: var(--terracota-dark); }
+
+    /* Botones inferiores */
+    .bottom-actions { display: flex; gap: 0.8rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .btn-outline { background: transparent; color: var(--terracota); border: 1.5px solid var(--terracota); padding: 0.55rem 1.2rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; }
+    .btn-outline:hover { background: var(--terracota); color: var(--white); }
+    .btn-outline-gray { background: transparent; color: var(--text-light); border: 1.5px solid #ddd; padding: 0.55rem 1.2rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; }
+    .btn-outline-gray:hover { border-color: var(--text-light); color: var(--text); }
+
+    /* ── RESUMEN LATERAL ── */
+    .resumen-card { background: var(--white); border: 1px solid #ede5da; border-radius: 16px; padding: 1.5rem; position: sticky; top: 5.5rem; }
+    .resumen-card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.4rem; }
+
+    /* Cupón */
+    .cupon-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.4rem; display: block; }
+    .cupon-row { display: flex; gap: 0; }
+    .cupon-input { flex: 1; padding: 0.6rem 1rem; border: 1.5px solid #ddd; border-right: none; border-radius: 8px 0 0 8px; font-size: 0.88rem; outline: none; transition: border-color 0.2s; font-family: 'Inter', sans-serif; }
+    .cupon-input:focus { border-color: var(--terracota); }
+    .btn-cupon { background: var(--terracota); color: var(--white); border: none; padding: 0.6rem 1rem; border-radius: 0 8px 8px 0; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-cupon:hover { background: var(--terracota-dark); }
+    .cupon-msg { font-size: 0.8rem; margin-top: 0.4rem; display: none; }
+    .cupon-msg.ok    { color: var(--verde); }
+    .cupon-msg.error { color: #c0392b; }
+
+    .divider { border: none; border-top: 1px solid #ede5da; margin: 1rem 0; }
+    .divider-total { border: none; border-top: 2px solid var(--terracota); margin: 0.8rem 0; }
+
+    /* Desglose */
+    .desglose { display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.88rem; }
+    .desglose-row { display: flex; justify-content: space-between; }
+    .desglose-row .label { color: var(--text-light); }
+    .desglose-row .valor-descuento { color: var(--verde); }
+
+    /* Total */
+    .total-row { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1rem; padding-top: 0.6rem; }
+    .total-valor { font-size: 1.3rem; color: var(--terracota); }
+
+    /* Botón checkout */
+    .btn-checkout { width: 100%; padding: 0.9rem; background: var(--terracota); color: var(--white); border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 1.2rem; }
+    .btn-checkout:hover { background: var(--terracota-dark); }
+    .btn-checkout:disabled { background: #ccc; cursor: not-allowed; }
+    .ssl-note { text-align: center; font-size: 0.78rem; color: var(--text-light); margin-top: 0.6rem; }
+
+    /* Garantías */
+    .garantias { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem; color: var(--text-light); }
+    .garantia-row { display: flex; align-items: center; gap: 0.5rem; }
+
+    /* ── CTA SOPORTE ── */
+    .cta-soporte { background: var(--verde); color: var(--white); text-align: center; padding: 3rem 2rem; margin-top: auto; }
+    .cta-soporte h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .cta-soporte p { opacity: 0.8; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .btn-soporte { background: var(--white); color: var(--verde); border: none; padding: 0.75rem 2.5rem; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+    .btn-soporte:hover { background: var(--arena); }
+
+    footer { background: var(--text); color: #aaa; padding: 1.5rem; text-align: center; font-size: 0.85rem; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--verde); color: var(--white); padding: 0.8rem 1.4rem; border-radius: 10px; font-size: 0.88rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 860px) {
+      .page-container { grid-template-columns: 1fr; padding: 0 1.2rem; }
+      .resumen-card { position: static; }
+      .stepper { gap: 0.4rem; padding: 0.8rem 1rem; }
+      .step-line { width: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="artesanos.html">Artesanos</a></li>
+      <li>
+        <button class="nav-btn-carrito active" style="background:var(--terracota-dark);">
+          🛒 Carrito <span id="carrito-count">0</span>
+        </button>
+      </li>
+      <li class="nav-divider"></li>
+      <li id="nav-sesion"></li>
+      <li id="nav-usuario-chip"></li>
+    </ul>
+  </nav>
+
+  <!-- STEPPER -->
+  <div class="stepper">
+    <div class="step">
+      <div class="step-num active">1</div>
+      <span class="step-label active">Carrito</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num pending">2</div>
+      <span class="step-label pending">Envío</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num pending">3</div>
+      <span class="step-label pending">Pago</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num pending">4</div>
+      <span class="step-label pending">Confirmación</span>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="page-container">
+
+    <!-- PRODUCTOS -->
+    <div class="col-productos">
+      <div class="col-header">
+        <h2>
+          Productos en tu carrito
+          <span class="badge-count" id="badge-count">0</span>
+        </h2>
+        <button class="btn-vaciar" id="btn-vaciar">🗑 Vaciar carrito</button>
+      </div>
+
+      <div class="cart-list" id="cart-list"></div>
+
+      <div class="empty-cart" id="empty-cart">
+        <span class="emoji">🛒</span>
+        <h3>Tu carrito está vacío</h3>
+        <p>Explora el catálogo y agrega productos artesanales.</p>
+        <a href="catalogo.html" class="btn-ir-catalogo">Ver Catálogo</a>
+      </div>
+
+      <div class="bottom-actions" id="bottom-actions">
+        <a href="catalogo.html" class="btn-outline">+ Agregar más productos</a>
+        <a href="catalogo.html" class="btn-outline-gray">← Seguir comprando</a>
+      </div>
+    </div>
+
+    <!-- RESUMEN -->
+    <aside>
+      <div class="resumen-card">
+        <h2>📋 Resumen del Pedido</h2>
+
+        <label class="cupon-label">Cupón de descuento</label>
+        <div class="cupon-row">
+          <input type="text" class="cupon-input" id="cupon-input" placeholder="Ingresa tu código..." />
+          <button class="btn-cupon" onclick="aplicarCupon()">Aplicar</button>
+        </div>
+        <p class="cupon-msg" id="cupon-msg"></p>
+
+        <hr class="divider">
+
+        <div class="desglose">
+          <div class="desglose-row">
+            <span class="label">Subtotal (<span id="total-items">0</span> productos)</span>
+            <span id="subtotal-display">$0 MXN</span>
+          </div>
+          <div class="desglose-row">
+            <span class="label">Descuento cupón</span>
+            <span class="valor-descuento" id="descuento-display">— $0 MXN</span>
+          </div>
+          <div class="desglose-row">
+            <span class="label">Envío</span>
+            <span style="color:var(--text-light)">Se calcula en siguiente paso</span>
+          </div>
+          <div class="desglose-row">
+            <span class="label">IVA (16%)</span>
+            <span id="iva-display">$0 MXN</span>
+          </div>
+        </div>
+
+        <hr class="divider-total">
+
+        <div class="total-row">
+          <span>Total estimado</span>
+          <span class="total-valor" id="total-display">$0 MXN</span>
+        </div>
+
+        <button class="btn-checkout" id="btn-checkout" onclick="irAPago()">
+          Continuar al Pago →
+        </button>
+        <p class="ssl-note">🔒 Pago seguro con cifrado SSL</p>
+
+        <hr class="divider">
+
+        <div class="garantias">
+          <div class="garantia-row">✅ Comercio justo — el artesano recibe el 100%</div>
+          <div class="garantia-row">🔄 Devoluciones en 30 días</div>
+          <div class="garantia-row">📦 Empaque artesanal y sustentable</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-soporte">
+    <h2>¿Tienes dudas sobre tu pedido?</h2>
+    <p>Nuestro equipo está disponible para ayudarte en todo momento.</p>
+    <a href="mailto:soporte@artesanosmx.com" class="btn-soporte">Contactar soporte</a>
+  </div>
+
+  <footer>© 2026 ArtesanosMX — Hecho con ❤️ en México</footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Cupones ──
+    const CUPONES = {
+      'OAXACA10':   { pct: 10, label: '10% de descuento aplicado 🎉' },
+      'ARTESANO':   { pct: 15, label: '15% descuento especial 🎉' },
+      'BIENVENIDO': { pct: 5,  label: '5% descuento de bienvenida 🎉' },
+    };
+    let cuponActivo = 0;
+
+    const emojis = { 'Textiles':'🧵','Cerámica':'🏺','Joyería':'💎','Mezcal':'🥃','Alimentos':'🌶️','Madera':'🪆' };
+    const emojiDefault = '🎨';
+
+    // ── Nav ──
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const navSesion = document.getElementById('nav-sesion');
+    const navChip   = document.getElementById('nav-usuario-chip');
+
+    if (usuario) {
+      const inicial     = usuario.nombre.charAt(0).toUpperCase();
+      const primerNombre = usuario.nombre.split(' ')[0];
+      navChip.innerHTML = `
+        <a href="cuenta.html" class="nav-usuario-chip" title="Mi cuenta">
+          <div class="avatar">${inicial}</div>
+          <span class="nombre">${primerNombre}</span>
+        </a>`;
+      navSesion.innerHTML = `<button class="nav-btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>`;
+    } else {
+      navSesion.innerHTML = `<a href="auth.html" class="nav-btn-login">Iniciar sesión</a>`;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '../index.html';
+    }
+
+    // ── Toast ──
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function formatMXN(n) {
+      return '$' + Math.round(n).toLocaleString('es-MX') + ' MXN';
+    }
+
+    // ── Render carrito desde localStorage ──
+    function renderCarrito() {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const lista   = document.getElementById('cart-list');
+      const empty   = document.getElementById('empty-cart');
+      const actions = document.getElementById('bottom-actions');
+
+      lista.innerHTML = carrito.map(item => `
+        <div class="cart-item" data-id="${item.id}">
+          <div class="item-img">${emojis[item.categoria] || emojiDefault}</div>
+          <div class="item-info">
+            <div class="item-nombre">${item.nombre}</div>
+            <div class="item-artesano">ArtesanosMX</div>
+            <span class="item-tag">${item.categoria || 'Artesanía'}</span>
+          </div>
+          <div class="item-right">
+            <button class="btn-delete" onclick="eliminarItem(${item.id})" title="Eliminar">✕</button>
+            <span class="item-precio">${formatMXN(item.precio * item.cantidad)}</span>
+            <div class="qty-control">
+              <button class="qty-btn" onclick="cambiarCantidad(${item.id}, -1)">−</button>
+              <span class="qty-display">${item.cantidad}</span>
+              <button class="qty-btn" onclick="cambiarCantidad(${item.id}, 1)">+</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      const hayItems = carrito.length > 0;
+      empty.style.display   = hayItems ? 'none'  : 'block';
+      actions.style.display = hayItems ? 'flex'  : 'none';
+      lista.style.display   = hayItems ? 'flex'  : 'none';
+
+      recalcular();
+    }
+
+    // ── Recalcular ──
+    function recalcular() {
+      const carrito  = JSON.parse(localStorage.getItem('carrito')) || [];
+      const subtotal = carrito.reduce((a, i) => a + i.precio * i.cantidad, 0);
+      const count    = carrito.reduce((a, i) => a + i.cantidad, 0);
+      const descuento = Math.round(subtotal * cuponActivo / 100);
+      const base      = subtotal - descuento;
+      const iva       = Math.round(base * 0.16);
+      const total     = base + iva;
+
+      document.getElementById('subtotal-display').textContent  = formatMXN(subtotal);
+      document.getElementById('descuento-display').textContent = '— ' + formatMXN(descuento);
+      document.getElementById('iva-display').textContent       = formatMXN(iva);
+      document.getElementById('total-display').textContent     = formatMXN(total);
+      document.getElementById('total-items').textContent       = count;
+      document.getElementById('badge-count').textContent       = carrito.length;
+      document.getElementById('carrito-count').textContent     = count;
+
+      const btn = document.getElementById('btn-checkout');
+      btn.disabled = carrito.length === 0;
+    }
+
+    // ── Cambiar cantidad ──
+    function cambiarCantidad(id, delta) {
+      let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const item  = carrito.find(i => i.id === id);
+      if (!item) return;
+      item.cantidad = Math.max(1, Math.min(99, item.cantidad + delta));
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+      renderCarrito();
+    }
+
+    // ── Eliminar item ──
+    function eliminarItem(id) {
+      let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const item  = carrito.find(i => i.id === id);
+      const nombre = item ? item.nombre : 'Producto';
+
+      // Animación
+      const el = document.querySelector(`.cart-item[data-id="${id}"]`);
+      if (el) {
+        el.classList.add('removing');
+        el.addEventListener('animationend', () => {
+          carrito = carrito.filter(i => i.id !== id);
+          localStorage.setItem('carrito', JSON.stringify(carrito));
+          renderCarrito();
+          showToast(`"${nombre}" eliminado del carrito`);
+        }, { once: true });
+      }
+    }
+
+    // ── Vaciar ──
+    document.getElementById('btn-vaciar').addEventListener('click', () => {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      if (carrito.length === 0) return;
+      if (!confirm('¿Vaciar tu carrito?')) return;
+      localStorage.setItem('carrito', JSON.stringify([]));
+      renderCarrito();
+      showToast('Carrito vaciado');
+    });
+
+    // ── Cupón ──
+    function aplicarCupon() {
+      const codigo = document.getElementById('cupon-input').value.trim().toUpperCase();
+      const msg    = document.getElementById('cupon-msg');
+
+      if (!codigo) {
+        msg.textContent = 'Ingresa un código de cupón.';
+        msg.className = 'cupon-msg error';
+        msg.style.display = 'block';
+        return;
+      }
+      if (CUPONES[codigo]) {
+        cuponActivo = CUPONES[codigo].pct;
+        msg.textContent = CUPONES[codigo].label;
+        msg.className = 'cupon-msg ok';
+        msg.style.display = 'block';
+        recalcular();
+        showToast(CUPONES[codigo].label);
+      } else {
+        cuponActivo = 0;
+        msg.textContent = 'Código no válido. Prueba: OAXACA10 o ARTESANO';
+        msg.className = 'cupon-msg error';
+        msg.style.display = 'block';
+        recalcular();
+      }
+    }
+
+    document.getElementById('cupon-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') aplicarCupon();
+    });
+
+    // ── Checkout ──
+    function irAPago() {
+      if (!usuario) {
+        showToast('Inicia sesión para continuar');
+        setTimeout(() => window.location.href = 'auth.html', 1200);
+        return;
+      }
+      window.location.href = 'pago.html';
+    }
+
+    // ── Init ──
+    renderCarrito();
+  </script>
+
+</body>
+</html>

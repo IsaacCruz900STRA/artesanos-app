@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin — ArtesanosMX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7;     --arena-dark: #EDD9B0;
+      --verde: #3A6B4A;     --verde-light: #4E8F63;
+      --text: #2C2C2C;      --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: #f0ebe3; color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* NAV */
+    nav { background: #1a1a1a; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--arena); text-decoration: none; }
+    .nav-logo span { color: var(--terracota); }
+    .admin-badge { background: var(--terracota); color: var(--white); font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.7rem; border-radius: 20px; margin-left: 0.6rem; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-admin-nombre { color: #aaa; font-size: 0.88rem; }
+    .btn-nav-salir { background: none; border: 1px solid #444; color: #aaa; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
+    .btn-nav-salir:hover { border-color: var(--terracota); color: var(--terracota); }
+
+    /* LAYOUT */
+    .page-container { display: grid; grid-template-columns: 220px 1fr; flex: 1; min-height: calc(100vh - 58px); }
+
+    /* SIDEBAR */
+    .sidebar { background: #1f1f1f; padding: 1.5rem 0; display: flex; flex-direction: column; gap: 0.2rem; }
+    .sidebar-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #555; padding: 0.8rem 1.4rem 0.3rem; }
+    .nav-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.65rem 1.4rem; cursor: pointer; font-size: 0.88rem; font-weight: 500; color: #888; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; border-left: 3px solid transparent; }
+    .nav-item:hover { color: #ddd; background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--white); background: rgba(192,98,42,0.15); border-left-color: var(--terracota); }
+    .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-badge { background: var(--terracota); color: var(--white); font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.5rem; border-radius: 20px; margin-left: auto; }
+
+    /* CONTENT */
+    .content { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; }
+    .tab-panel { display: none; flex-direction: column; gap: 1.5rem; }
+    .tab-panel.active { display: flex; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+    .stat-card { background: var(--white); border: 1px solid #ede5da; border-radius: 14px; padding: 1.3rem 1.5rem; }
+    .stat-card .num { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; display: block; }
+    .stat-card .lbl { font-size: 0.8rem; color: var(--text-light); margin-top: 0.2rem; }
+    .stat-card.alerta .num { color: var(--terracota); }
+    .stat-card.ok .num     { color: var(--verde); }
+    .stat-card.neutral .num{ color: var(--text); }
+
+    /* Card */
+    .card { background: var(--white); border: 1px solid #ede5da; border-radius: 16px; padding: 1.5rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; gap: 1rem; flex-wrap: wrap; }
+    .card-titulo { font-size: 0.95rem; font-weight: 700; }
+    .card-sub    { font-size: 0.82rem; color: var(--text-light); margin-top: 0.2rem; }
+    .card-actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+
+    /* Tabla */
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    th { text-align: left; padding: 0.6rem 0.8rem; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); border-bottom: 2px solid #ede5da; white-space: nowrap; }
+    td { padding: 0.85rem 0.8rem; border-bottom: 1px solid #f5ede0; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfaf6; }
+    .user-cell { display: flex; align-items: center; gap: 0.7rem; }
+    .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--arena-dark); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--text-light); flex-shrink: 0; }
+
+    /* Badges */
+    .badge { padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.73rem; font-weight: 700; display: inline-block; }
+    .badge-activo      { background: #eaf4ee; color: var(--verde); }
+    .badge-pendiente   { background: #fff8e8; color: #b07c10; }
+    .badge-desactivado { background: #f5f5f5; color: #999; }
+    .badge-admin       { background: #f0eaf8; color: #6b3fa0; }
+    .badge-cliente     { background: #e8f0fb; color: #2a5cbf; }
+    .badge-artesano    { background: #fdf0ea; color: var(--terracota); }
+
+    /* Botones acción */
+    .acciones { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .btn-accion { border: none; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn-aprobar    { background: #eaf4ee; color: var(--verde); }
+    .btn-aprobar:hover { background: var(--verde); color: var(--white); }
+    .btn-rechazar   { background: #fdf0ea; color: var(--terracota); }
+    .btn-rechazar:hover { background: var(--terracota); color: var(--white); }
+    .btn-editar     { background: #e8f0fb; color: #2a5cbf; }
+    .btn-editar:hover { background: #2a5cbf; color: var(--white); }
+    .btn-desactivar { background: #f5f5f5; color: #777; }
+    .btn-desactivar:hover { background: #666; color: var(--white); }
+    .btn-reactivar  { background: #eaf4ee; color: var(--verde); }
+    .btn-reactivar:hover { background: var(--verde); color: var(--white); }
+    .btn-eliminar   { background: #fde8e8; color: #c0392b; }
+    .btn-eliminar:hover { background: #c0392b; color: var(--white); }
+
+    /* Botón primario */
+    .btn-primary { background: var(--terracota); color: var(--white); border: none; padding: 0.55rem 1.2rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .btn-primary:hover { background: var(--terracota-dark); }
+    .btn-secondary { background: none; border: 1.5px solid #ddd; color: var(--text-light); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+    /* Filtros */
+    .filtros { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+    .input-buscar { padding: 0.5rem 0.9rem; border: 1.5px solid #e0d8ce; border-radius: 8px; font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; background: var(--white); width: 200px; }
+    .input-buscar:focus { border-color: var(--terracota); }
+    .select-filtro { padding: 0.5rem 0.8rem; border: 1.5px solid #e0d8ce; border-radius: 8px; font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; background: var(--white); cursor: pointer; }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 3rem; color: var(--text-light); }
+    .empty .emoji { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; }
+
+    /* Pendientes */
+    .pendiente-card { background: var(--white); border: 1px solid #f0c4a8; border-left: 4px solid var(--terracota); border-radius: 14px; padding: 1.2rem 1.4rem; display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; }
+    .pendiente-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--arena-dark); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 700; color: var(--terracota); flex-shrink: 0; }
+    .pendiente-info { flex: 1; min-width: 150px; }
+    .pendiente-info strong { font-size: 0.95rem; font-weight: 700; display: block; }
+    .pendiente-info p { font-size: 0.8rem; color: var(--text-light); margin-top: 0.15rem; }
+    .pendiente-fecha { font-size: 0.75rem; color: var(--text-light); margin-top: 0.3rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 20px; padding: 2rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; }
+    .modal-header h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+    .btn-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); line-height: 1; }
+    .btn-close:hover { color: var(--text); }
+    .modal-footer { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.4rem; }
+
+    /* Form modal */
+    .form-grid { display: grid; gap: 1rem; }
+    .form-grid.col-2 { grid-template-columns: 1fr 1fr; }
+    .col-full { grid-column: 1/-1; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 0.65rem 0.9rem; border: 1.5px solid #e0d8ce; border-radius: 8px;
+      font-size: 0.92rem; font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color 0.2s; background: var(--white); color: var(--text);
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--terracota); }
+    .form-group textarea { resize: vertical; min-height: 70px; }
+    .input-hint { font-size: 0.75rem; color: var(--text-light); margin-top: 0.2rem; }
+    .toast-modal { padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; display: none; margin-bottom: 0.8rem; }
+    .toast-modal.error { background: #fdf0ea; color: var(--terracota); border: 1px solid #f0c4a8; }
+
+    /* Toast flotante */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--verde); color: var(--white); padding: 0.8rem 1.4rem; border-radius: 10px; font-size: 0.88rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .no-acceso { text-align: center; padding: 5rem 2rem; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .no-acceso .emoji { font-size: 3rem; margin-bottom: 1rem; }
+    .no-acceso h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.8rem; }
+    .no-acceso p { color: var(--text-light); margin-bottom: 1.5rem; }
+    .btn-back { background: var(--terracota); color: var(--white); border: none; padding: 0.7rem 2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+
+    @media (max-width: 860px) {
+      .page-container { grid-template-columns: 1fr; }
+      .sidebar { flex-direction: row; flex-wrap: wrap; padding: 0.5rem; min-height: auto; }
+      .nav-item { flex: 1; justify-content: center; min-width: 70px; border-left: none; border-bottom: 3px solid transparent; font-size: 0.78rem; }
+      .nav-item.active { border-left-color: transparent; border-bottom-color: var(--terracota); }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid.col-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div style="display:flex;align-items:center;">
+      <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-admin-nombre" id="admin-nombre"></span>
+      <button class="btn-nav-salir" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </nav>
+
+  <div id="main-content" style="display:flex;flex:1;"></div>
+
+  <!-- ── MODAL ARTESANO ── -->
+  <div class="modal-overlay" id="modal-artesano">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-artesano-titulo">Nuevo artesano</h3>
+        <button class="btn-close" onclick="cerrarModal('modal-artesano')">×</button>
+      </div>
+      <div class="toast-modal" id="toast-modal-artesano"></div>
+      <div class="form-grid col-2">
+        <input type="hidden" id="a-id" />
+        <div class="form-group">
+          <label>Nombre completo <span style="color:var(--terracota)">*</span></label>
+          <input type="text" id="a-nombre" placeholder="Nombre del artesano" />
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico <span style="color:var(--terracota)">*</span></label>
+          <input type="email" id="a-email" placeholder="correo@ejemplo.com" />
+        </div>
+        <div class="form-group" id="a-password-group">
+          <label>Contraseña <span style="color:var(--terracota)">*</span></label>
+          <input type="password" id="a-password" placeholder="Mínimo 6 caracteres" />
+          <span class="input-hint">Solo al crear. Dejar vacío para no cambiar al editar.</span>
+        </div>
+        <div class="form-group">
+          <label>Estado / Región</label>
+          <select id="a-region">
+            <option value="">— Seleccionar —</option>
+            <option>Oaxaca</option><option>Chiapas</option><option>Guerrero</option>
+            <option>Puebla</option><option>Veracruz</option><option>Jalisco</option>
+            <option>Ciudad de México</option><option>Michoacán</option>
+            <option>Hidalgo</option><option>Yucatán</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado de cuenta</label>
+          <select id="a-estado">
+            <option value="activo">Activo</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="desactivado">Desactivado</option>
+          </select>
+        </div>
+        <div class="form-group col-full">
+          <label>Descripción / Historia</label>
+          <textarea id="a-descripcion" placeholder="Cuéntanos sobre el artesano, técnicas, tradición..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="cerrarModal('modal-artesano')">Cancelar</button>
+        <button class="btn-primary" onclick="guardarArtesano()">Guardar artesano</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL USUARIO ── -->
+  <div class="modal-overlay" id="modal-usuario">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-usuario-titulo">Nuevo usuario</h3>
+        <button class="btn-close" onclick="cerrarModal('modal-usuario')">×</button>
+      </div>
+      <div class="toast-modal" id="toast-modal-usuario"></div>
+      <div class="form-grid col-2">
+        <input type="hidden" id="u-id" />
+        <div class="form-group">
+          <label>Nombre completo <span style="color:var(--terracota)">*</span></label>
+          <input type="text" id="u-nombre" placeholder="Nombre completo" />
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico <span style="color:var(--terracota)">*</span></label>
+          <input type="email" id="u-email" placeholder="correo@ejemplo.com" />
+        </div>
+        <div class="form-group" id="u-password-group">
+          <label>Contraseña <span style="color:var(--terracota)">*</span></label>
+          <input type="password" id="u-password" placeholder="Mínimo 6 caracteres" />
+        </div>
+        <div class="form-group">
+          <label>Rol <span style="color:var(--terracota)">*</span></label>
+          <select id="u-rol">
+            <option value="cliente">Cliente</option>
+            <option value="artesano">Artesano</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado <span style="color:var(--terracota)">*</span></label>
+          <select id="u-estado">
+            <option value="activo">Activo</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="desactivado">Desactivado</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="cerrarModal('modal-usuario')">Cancelar</button>
+        <button class="btn-primary" onclick="guardarUsuario()">Guardar usuario</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API    = 'http://localhost:3000/api/admin';
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const token   = localStorage.getItem('token');
+    const main    = document.getElementById('main-content');
+
+    if (!usuario || usuario.rol !== 'admin') {
+      main.innerHTML = `
+        <div class="no-acceso">
+          <div class="emoji">🔒</div>
+          <h2>Acceso exclusivo para administradores</h2>
+          <p>No tienes permisos para ver esta sección.</p>
+          <a href="cuenta.html" class="btn-back">Volver</a>
+        </div>`;
+    } else {
+      document.getElementById('admin-nombre').textContent = usuario.nombre;
+      construirPanel();
+    }
+
+    // ── PANEL ──
+    function construirPanel() {
+      main.innerHTML = `
+        <div class="page-container" style="flex:1;">
+          <div class="sidebar">
+            <div class="sidebar-label">General</div>
+            <button class="nav-item active" onclick="cambiarTab('resumen',this)"><span class="icon">📊</span> Resumen</button>
+            <div class="sidebar-label">Gestión</div>
+            <button class="nav-item" onclick="cambiarTab('pendientes',this)">
+              <span class="icon">⏳</span> Pendientes
+              <span class="nav-badge" id="badge-pendientes">0</span>
+            </button>
+            <button class="nav-item" onclick="cambiarTab('artesanos',this)"><span class="icon">🏺</span> Artesanos</button>
+            <button class="nav-item" onclick="cambiarTab('usuarios',this)"><span class="icon">👥</span> Usuarios</button>
+            <button class="nav-item" onclick="cambiarTab('productos',this)"><span class="icon">📦</span> Productos</button>
+          </div>
+
+          <div class="content">
+
+            <!-- RESUMEN -->
+            <div class="tab-panel active" id="tab-resumen">
+              <div class="stats-grid" id="stats-grid">
+                ${['—','—','—','—'].map((n,i) => `<div class="stat-card ${['neutral','ok','alerta','neutral'][i]}"><span class="num">${n}</span><span class="lbl">${['Total usuarios','Artesanos activos','Pendientes','Clientes'][i]}</span></div>`).join('')}
+              </div>
+              <div class="card">
+                <div class="card-header"><div><div class="card-titulo">⏳ Artesanos pendientes</div><div class="card-sub">Aprueba o rechaza cada solicitud.</div></div></div>
+                <div id="resumen-pendientes"></div>
+              </div>
+            </div>
+
+            <!-- PENDIENTES -->
+            <div class="tab-panel" id="tab-pendientes">
+              <div class="card">
+                <div class="card-header"><div><div class="card-titulo">Solicitudes de artesanos</div><div class="card-sub">Usuarios registrados como artesanos esperando aprobación.</div></div></div>
+                <div id="pendientes-lista"></div>
+              </div>
+            </div>
+
+            <!-- ARTESANOS -->
+            <div class="tab-panel" id="tab-artesanos">
+              <div class="card">
+                <div class="card-header">
+                  <div><div class="card-titulo">Artesanos</div><div class="card-sub">CRUD completo de artesanos.</div></div>
+                  <div class="card-actions">
+                    <input class="input-buscar" placeholder="Buscar..." oninput="filtrarTabla('tbl-artesanos',this.value)" />
+                    <select class="select-filtro" onchange="filtrarEstado('tbl-artesanos',this.value)">
+                      <option value="">Todos</option>
+                      <option value="activo">Activos</option>
+                      <option value="pendiente">Pendientes</option>
+                      <option value="desactivado">Desactivados</option>
+                    </select>
+                    <button class="btn-primary" onclick="abrirModalArtesano()">+ Nuevo</button>
+                  </div>
+                </div>
+                <div id="tbl-artesanos-container"></div>
+              </div>
+            </div>
+
+            <!-- USUARIOS -->
+            <div class="tab-panel" id="tab-usuarios">
+              <div class="card">
+                <div class="card-header">
+                  <div><div class="card-titulo">Usuarios</div><div class="card-sub">Gestión de todos los usuarios de la plataforma.</div></div>
+                  <div class="card-actions">
+                    <input class="input-buscar" placeholder="Buscar..." oninput="filtrarTabla('tbl-usuarios',this.value)" />
+                    <select class="select-filtro" onchange="filtrarEstado('tbl-usuarios',this.value)">
+                      <option value="">Todos</option>
+                      <option value="activo">Activos</option>
+                      <option value="pendiente">Pendientes</option>
+                      <option value="desactivado">Desactivados</option>
+                    </select>
+                    <button class="btn-primary" onclick="abrirModalUsuario()">+ Nuevo</button>
+                  </div>
+                </div>
+                <div id="tbl-usuarios-container"></div>
+              </div>
+            </div>
+
+            <!-- PRODUCTOS -->
+            <div class="tab-panel" id="tab-productos">
+              <div class="card">
+                <div class="card-header">
+                  <div><div class="card-titulo">Productos</div><div class="card-sub">Todos los productos publicados en la plataforma.</div></div>
+                  <input class="input-buscar" placeholder="Buscar..." oninput="filtrarTabla('tbl-productos',this.value)" />
+                </div>
+                <div id="tbl-productos-container"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>`;
+
+      cargarTodo();
+    }
+
+    // ── HELPERS ──
+    function showToast(msg, ok = true) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = ok ? 'var(--verde)' : 'var(--terracota)';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function toastModal(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = 'toast-modal error';
+      el.style.display = 'block';
+    }
+
+    function formatFecha(f) {
+      if (!f) return '—';
+      return new Date(f).toLocaleDateString('es-MX', { year:'numeric', month:'short', day:'numeric' });
+    }
+
+    function badgeEstado(e) {
+      const map = { activo:'badge-activo', pendiente:'badge-pendiente', desactivado:'badge-desactivado' };
+      const lbl = { activo:'Activo', pendiente:'Pendiente', desactivado:'Desactivado' };
+      return `<span class="badge ${map[e]||''}">${lbl[e]||e}</span>`;
+    }
+
+    function badgeRol(r) {
+      const map = { admin:'badge-admin', cliente:'badge-cliente', artesano:'badge-artesano' };
+      return `<span class="badge ${map[r]||''}">${r}</span>`;
+    }
+
+    async function apiFetch(url, opts = {}) {
+      const res = await fetch('http://localhost:3000/api/admin' + url, {
+        ...opts,
+        headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${token}`, ...(opts.headers||{}) },
+      });
+      return res.json();
+    }
+
+    function cambiarTab(tab, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+
+    function filtrarTabla(id, texto) {
+      document.querySelectorAll(`#${id}-container tbody tr`).forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(texto.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    function filtrarEstado(id, estado) {
+      document.querySelectorAll(`#${id}-container tbody tr`).forEach(tr => {
+        tr.style.display = (!estado || tr.dataset.estado === estado) ? '' : 'none';
+      });
+    }
+
+    // ── CARGA ──
+    async function cargarTodo() {
+      await Promise.all([cargarStats(), cargarArtesanos(), cargarUsuarios(), cargarProductos()]);
+    }
+
+    async function cargarStats() {
+      try {
+        const d = await apiFetch('/stats');
+        document.getElementById('stats-grid').innerHTML = `
+          <div class="stat-card neutral"><span class="num">${d.total_usuarios||0}</span><span class="lbl">Total usuarios</span></div>
+          <div class="stat-card ok"><span class="num">${d.artesanos_activos||0}</span><span class="lbl">Artesanos activos</span></div>
+          <div class="stat-card alerta"><span class="num">${d.pendientes||0}</span><span class="lbl">Pendientes</span></div>
+          <div class="stat-card neutral"><span class="num">${d.total_clientes||0}</span><span class="lbl">Clientes</span></div>`;
+        const b = document.getElementById('badge-pendientes');
+        if (b) b.textContent = d.pendientes || 0;
+      } catch(e) {}
+    }
+
+    // ── ARTESANOS ──
+    let artesanosData = [];
+    async function cargarArtesanos() {
+      try {
+        artesanosData = await apiFetch('/artesanos');
+        renderArtesanos();
+        renderPendientes(artesanosData.filter(a => a.estado === 'pendiente'));
+      } catch(e) {}
+    }
+
+    function renderArtesanos() {
+      const c = document.getElementById('tbl-artesanos-container');
+      if (!c) return;
+      if (!artesanosData.length) { c.innerHTML = `<div class="empty"><span class="emoji">🏺</span>No hay artesanos.</div>`; return; }
+      c.innerHTML = `
+        <table id="tbl-artesanos"><thead>
+          <tr><th>Artesano</th><th>Región</th><th>Productos</th><th>Estado</th><th>Registro</th><th>Acciones</th></tr>
+        </thead><tbody>
+          ${artesanosData.map(a => `
+            <tr data-estado="${a.estado}">
+              <td><div class="user-cell">
+                <div class="user-avatar" style="color:var(--terracota);">${a.nombre.charAt(0).toUpperCase()}</div>
+                <div><strong style="font-size:0.88rem;">${a.nombre}</strong><br>
+                <span style="font-size:0.75rem;color:var(--text-light);">${a.email}</span></div>
+              </div></td>
+              <td style="font-size:0.82rem;">${a.region||'—'}</td>
+              <td style="font-weight:700;color:var(--terracota);">${a.total_productos||0}</td>
+              <td>${badgeEstado(a.estado)}</td>
+              <td style="font-size:0.78rem;color:var(--text-light);">${formatFecha(a.fecha_registro)}</td>
+              <td><div class="acciones">
+                ${a.estado==='pendiente'   ? `<button class="btn-accion btn-aprobar"    onclick="cambiarEstadoUsuario(${a.id_usuario},'activo')">Aprobar</button>` : ''}
+                ${a.estado==='activo'      ? `<button class="btn-accion btn-desactivar" onclick="cambiarEstadoUsuario(${a.id_usuario},'desactivado')">Desactivar</button>` : ''}
+                ${a.estado==='desactivado' ? `<button class="btn-accion btn-reactivar"  onclick="cambiarEstadoUsuario(${a.id_usuario},'activo')">Reactivar</button>` : ''}
+                <button class="btn-accion btn-editar"   onclick="abrirModalArtesano(${a.id_artesano})">Editar</button>
+                <button class="btn-accion btn-eliminar" onclick="eliminarArtesano(${a.id_artesano},'${a.nombre}')">Eliminar</button>
+              </div></td>
+            </tr>`).join('')}
+        </tbody></table>`;
+    }
+
+    function renderPendientes(pendientes) {
+      ['resumen-pendientes','pendientes-lista'].forEach(id => {
+        const c = document.getElementById(id);
+        if (!c) return;
+        if (!pendientes.length) { c.innerHTML = `<div class="empty"><span class="emoji">✅</span>No hay solicitudes pendientes.</div>`; return; }
+        c.innerHTML = `<div style="display:flex;flex-direction:column;gap:0.8rem;">
+          ${pendientes.map(a => `
+            <div class="pendiente-card">
+              <div class="pendiente-avatar">${a.nombre.charAt(0).toUpperCase()}</div>
+              <div class="pendiente-info">
+                <strong>${a.nombre}</strong>
+                <p>${a.email}</p>
+                <div class="pendiente-fecha">Solicitud: ${formatFecha(a.fecha_registro)}</div>
+              </div>
+              <div class="acciones">
+                <button class="btn-accion btn-aprobar"  onclick="cambiarEstadoUsuario(${a.id_usuario},'activo')">✓ Aprobar</button>
+                <button class="btn-accion btn-rechazar" onclick="cambiarEstadoUsuario(${a.id_usuario},'desactivado')">✕ Rechazar</button>
+              </div>
+            </div>`).join('')}
+        </div>`;
+      });
+    }
+
+    // Modal artesano
+    let editArtesanoId = null;
+    function abrirModalArtesano(id = null) {
+      editArtesanoId = id;
+      document.getElementById('modal-artesano-titulo').textContent = id ? 'Editar artesano' : 'Nuevo artesano';
+      document.getElementById('toast-modal-artesano').style.display = 'none';
+      document.getElementById('a-password-group').style.opacity = id ? '0.6' : '1';
+
+      if (id) {
+        const a = artesanosData.find(x => x.id_artesano === id);
+        if (a) {
+          document.getElementById('a-id').value          = a.id_artesano;
+          document.getElementById('a-nombre').value      = a.nombre;
+          document.getElementById('a-email').value       = a.email;
+          document.getElementById('a-password').value    = '';
+          document.getElementById('a-region').value      = a.region || '';
+          document.getElementById('a-estado').value      = a.estado || 'activo';
+          document.getElementById('a-descripcion').value = a.descripcion || '';
+        }
+      } else {
+        ['a-id','a-nombre','a-email','a-password','a-descripcion'].forEach(i => document.getElementById(i).value = '');
+        document.getElementById('a-region').value = '';
+        document.getElementById('a-estado').value = 'activo';
+      }
+      document.getElementById('modal-artesano').classList.add('open');
+    }
+
+    async function guardarArtesano() {
+      const id          = document.getElementById('a-id').value;
+      const nombre      = document.getElementById('a-nombre').value.trim();
+      const email       = document.getElementById('a-email').value.trim();
+      const password    = document.getElementById('a-password').value;
+      const region      = document.getElementById('a-region').value;
+      const estado      = document.getElementById('a-estado').value;
+      const descripcion = document.getElementById('a-descripcion').value.trim();
+
+      if (!nombre || !email) { toastModal('toast-modal-artesano','Nombre y correo son obligatorios.'); return; }
+      if (!id && !password)  { toastModal('toast-modal-artesano','La contraseña es obligatoria al crear.'); return; }
+
+      try {
+        let data;
+        if (id) {
+          data = await apiFetch(`/artesanos/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ nombre, email, descripcion, region, estado }),
+          });
+        } else {
+          data = await apiFetch('/artesanos', {
+            method: 'POST',
+            body: JSON.stringify({ nombre, email, password, descripcion, region }),
+          });
+        }
+        if (data.error) { toastModal('toast-modal-artesano', data.error); return; }
+        cerrarModal('modal-artesano');
+        showToast(id ? '✓ Artesano actualizado' : '✓ Artesano creado');
+        await cargarArtesanos();
+        await cargarStats();
+      } catch(e) { toastModal('toast-modal-artesano','Error de conexión.'); }
+    }
+
+    async function eliminarArtesano(id, nombre) {
+      if (!confirm(`¿Eliminar al artesano "${nombre}"? Se eliminará su cuenta y todos sus datos.`)) return;
+      try {
+        await apiFetch(`/artesanos/${id}`, { method: 'DELETE' });
+        showToast(`"${nombre}" eliminado`);
+        await cargarArtesanos();
+        await cargarStats();
+      } catch(e) { showToast('Error al eliminar', false); }
+    }
+
+    // ── USUARIOS ──
+    let usuariosData = [];
+    async function cargarUsuarios() {
+      try {
+        usuariosData = await apiFetch('/usuarios');
+        renderUsuarios();
+      } catch(e) {}
+    }
+
+    function renderUsuarios() {
+      const c = document.getElementById('tbl-usuarios-container');
+      if (!c) return;
+      if (!usuariosData.length) { c.innerHTML = `<div class="empty"><span class="emoji">👥</span>No hay usuarios.</div>`; return; }
+      c.innerHTML = `
+        <table id="tbl-usuarios"><thead>
+          <tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Registro</th><th>Acciones</th></tr>
+        </thead><tbody>
+          ${usuariosData.map(u => `
+            <tr data-estado="${u.estado}">
+              <td><div class="user-cell">
+                <div class="user-avatar">${u.nombre.charAt(0).toUpperCase()}</div>
+                <div><strong style="font-size:0.88rem;">${u.nombre}</strong><br>
+                <span style="font-size:0.75rem;color:var(--text-light);">${u.email}</span></div>
+              </div></td>
+              <td>${badgeRol(u.rol)}</td>
+              <td>${badgeEstado(u.estado)}</td>
+              <td style="font-size:0.78rem;color:var(--text-light);">${formatFecha(u.fecha_registro)}</td>
+              <td><div class="acciones">
+                ${u.estado==='activo'      ? `<button class="btn-accion btn-desactivar" onclick="cambiarEstadoUsuario(${u.id_usuario},'desactivado')">Desactivar</button>` : ''}
+                ${u.estado==='desactivado' ? `<button class="btn-accion btn-reactivar"  onclick="cambiarEstadoUsuario(${u.id_usuario},'activo')">Reactivar</button>` : ''}
+                ${u.estado==='pendiente'   ? `<button class="btn-accion btn-aprobar"    onclick="cambiarEstadoUsuario(${u.id_usuario},'activo')">Aprobar</button>` : ''}
+                <button class="btn-accion btn-editar"   onclick="abrirModalUsuario(${u.id_usuario})">Editar</button>
+                ${u.rol !== 'admin' ? `<button class="btn-accion btn-eliminar" onclick="eliminarUsuario(${u.id_usuario},'${u.nombre}')">Eliminar</button>` : ''}
+              </div></td>
+            </tr>`).join('')}
+        </tbody></table>`;
+    }
+
+    let editUsuarioId = null;
+    function abrirModalUsuario(id = null) {
+      editUsuarioId = id;
+      document.getElementById('modal-usuario-titulo').textContent = id ? 'Editar usuario' : 'Nuevo usuario';
+      document.getElementById('toast-modal-usuario').style.display = 'none';
+      const pwdGroup = document.getElementById('u-password-group');
+
+      if (id) {
+        const u = usuariosData.find(x => x.id_usuario === id);
+        if (u) {
+          document.getElementById('u-id').value     = u.id_usuario;
+          document.getElementById('u-nombre').value = u.nombre;
+          document.getElementById('u-email').value  = u.email;
+          document.getElementById('u-password').value = '';
+          document.getElementById('u-rol').value    = u.rol;
+          document.getElementById('u-estado').value = u.estado;
+          pwdGroup.style.display = 'none'; // No cambiar contraseña al editar
+        }
+      } else {
+        ['u-id','u-nombre','u-email','u-password'].forEach(i => document.getElementById(i).value = '');
+        document.getElementById('u-rol').value    = 'cliente';
+        document.getElementById('u-estado').value = 'activo';
+        pwdGroup.style.display = 'flex';
+      }
+      document.getElementById('modal-usuario').classList.add('open');
+    }
+
+    async function guardarUsuario() {
+      const id      = document.getElementById('u-id').value;
+      const nombre  = document.getElementById('u-nombre').value.trim();
+      const email   = document.getElementById('u-email').value.trim();
+      const password= document.getElementById('u-password').value;
+      const rol     = document.getElementById('u-rol').value;
+      const estado  = document.getElementById('u-estado').value;
+
+      if (!nombre || !email || !rol) { toastModal('toast-modal-usuario','Nombre, correo y rol son obligatorios.'); return; }
+      if (!id && !password) { toastModal('toast-modal-usuario','La contraseña es obligatoria al crear.'); return; }
+
+      try {
+        let data;
+        if (id) {
+          data = await apiFetch(`/usuarios/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ nombre, email, rol, estado }),
+          });
+        } else {
+          data = await apiFetch('/usuarios', {
+            method: 'POST',
+            body: JSON.stringify({ nombre, email, password, rol, estado }),
+          });
+        }
+        if (data.error) { toastModal('toast-modal-usuario', data.error); return; }
+        cerrarModal('modal-usuario');
+        showToast(id ? '✓ Usuario actualizado' : '✓ Usuario creado');
+        await cargarUsuarios();
+        await cargarStats();
+      } catch(e) { toastModal('toast-modal-usuario','Error de conexión.'); }
+    }
+
+    async function eliminarUsuario(id, nombre) {
+      if (!confirm(`¿Eliminar a "${nombre}"? Esta acción no se puede deshacer.`)) return;
+      try {
+        await apiFetch(`/usuarios/${id}`, { method: 'DELETE' });
+        showToast(`"${nombre}" eliminado`);
+        await cargarUsuarios();
+        await cargarStats();
+      } catch(e) { showToast('Error al eliminar', false); }
+    }
+
+    async function cambiarEstadoUsuario(id, estado) {
+      try {
+        const data = await apiFetch(`/usuarios/${id}/estado`, {
+          method: 'PATCH',
+          body: JSON.stringify({ estado }),
+        });
+        if (data.error) { showToast(data.error, false); return; }
+        showToast(`Usuario ${estado === 'activo' ? 'aprobado ✓' : estado}`);
+        await cargarTodo();
+      } catch(e) { showToast('Error de conexión', false); }
+    }
+
+    // ── PRODUCTOS ──
+    async function cargarProductos() {
+      try {
+        const productos = await apiFetch('/productos');
+        const c = document.getElementById('tbl-productos-container');
+        if (!c) return;
+        if (!productos.length) { c.innerHTML = `<div class="empty"><span class="emoji">📦</span>No hay productos.</div>`; return; }
+        c.innerHTML = `
+          <table id="tbl-productos"><thead>
+            <tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Acciones</th></tr>
+          </thead><tbody>
+            ${productos.map(p => `
+              <tr>
+                <td><strong style="font-size:0.88rem;">${p.nombre}</strong><br>
+                  <span style="font-size:0.75rem;color:var(--text-light);">${(p.descripcion||'').substring(0,50)}…</span>
+                </td>
+                <td><span class="badge badge-artesano">${p.categoria||'—'}</span></td>
+                <td style="font-weight:700;color:var(--terracota);">$${Number(p.precio).toLocaleString('es-MX')}</td>
+                <td><button class="btn-accion btn-eliminar" onclick="eliminarProducto(${p.id_producto},'${p.nombre}')">Eliminar</button></td>
+              </tr>`).join('')}
+          </tbody></table>`;
+      } catch(e) {}
+    }
+
+    async function eliminarProducto(id, nombre) {
+      if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+      try {
+        await apiFetch(`/productos/${id}`, { method: 'DELETE' });
+        showToast(`"${nombre}" eliminado`);
+        await cargarProductos();
+      } catch(e) { showToast('Error al eliminar', false); }
+    }
+
+    // ── MODAL ──
+    function cerrarModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+      m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    });
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '../index.html';
+    }
+  </script>
+
+</body>
+</html>

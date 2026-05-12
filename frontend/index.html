@@ -15,21 +15,32 @@
     }
     body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); }
 
-    /* NAV */
+    /* ── NAV UNIFICADO ── */
     nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
-    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
     .nav-logo span { color: var(--verde); }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; transition: color 0.2s; }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
     .nav-links a:hover { color: var(--terracota); }
-    .nav-cta { background: var(--terracota) !important; color: var(--white) !important; padding: 0.5rem 1.2rem; border-radius: 6px; }
+    .nav-links a.active { color: var(--terracota); font-weight: 600; }
+    .nav-btn-carrito { background: var(--terracota); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .nav-btn-carrito:hover { background: var(--terracota-dark); }
+    .nav-divider { width: 1px; height: 20px; background: #E8E0D5; }
+    .nav-btn-cerrar { background: none; border: 1px solid #E8E0D5; color: var(--text-light); padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn-cerrar:hover { border-color: var(--terracota); color: var(--terracota); }
+    .nav-usuario-chip { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; background: var(--arena); border: 1px solid var(--arena-dark); padding: 0.4rem 0.9rem; border-radius: 20px; transition: all 0.2s; }
+    .nav-usuario-chip:hover { border-color: var(--verde); background: #e8f0eb; }
+    .nav-usuario-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav-usuario-chip .nombre { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .nav-btn-login { background: var(--verde); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn-login:hover { background: var(--verde-light); }
 
     /* HERO */
     .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 88vh; align-items: center; padding: 4rem 5rem; gap: 3rem; }
     .hero-text h1 { font-family: 'Playfair Display', serif; font-size: 3.2rem; line-height: 1.2; margin-bottom: 1.2rem; }
     .hero-text h1 em { font-style: normal; color: var(--terracota); }
     .hero-text p { font-size: 1.1rem; color: var(--text-light); line-height: 1.8; margin-bottom: 2rem; max-width: 480px; }
-    .hero-buttons { display: flex; gap: 1rem; }
+    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
     .btn-primary { background: var(--terracota); color: var(--white); padding: 0.85rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; transition: background 0.2s; }
     .btn-primary:hover { background: var(--terracota-dark); }
     .btn-secondary { background: transparent; color: var(--verde); padding: 0.85rem 2rem; border: 2px solid var(--verde); border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; transition: all 0.2s; }
@@ -72,27 +83,42 @@
     footer { background: var(--text); color: var(--white); padding: 3rem 5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
     .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--arena); }
     footer p { color: #aaa; font-size: 0.85rem; }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
+      .hero-visual { display: none; }
+      .hero-text h1 { font-size: 2.4rem; }
+      .stats, .productos-section { padding: 2rem 1.5rem; }
+      footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
+    }
   </style>
 </head>
 <body>
 
-  <nav>
-    <div class="nav-logo">Artesanos<span>MX</span></div>
-    <ul class="nav-links">
-      <li><a href="#">Inicio</a></li>
-      <li><a href="#productos">Productos</a></li>
-      <li><a href="#">Artesanos</a></li>
-      <li><a href="#" class="nav-cta">Vender</a></li>
-    </ul>
-  </nav>
+<nav>
+  <a href="index.html" class="nav-logo">Artesanos<span>MX</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Inicio</a></li>
+    <li><a href="pages/catalogo.html">Catálogo</a></li>
+    <li><a href="pages/artesanos.html">Artesanos</a></li>
+    <li>
+      <button class="nav-btn-carrito" onclick="window.location.href='pages/carrito.html'">
+        🛒 Carrito <span id="carrito-count">0</span>
+      </button>
+    </li>
+    <li class="nav-divider"></li>
+    <li id="nav-sesion"></li>
+    <li id="nav-usuario-chip"></li>
+  </ul>
+</nav>
 
   <section class="hero">
     <div class="hero-text">
       <h1>Arte hecho a mano, <em>directo del artesano</em> a ti</h1>
       <p>Conectamos a artesanos mexicanos con personas que valoran lo auténtico. Cada pieza tiene una historia, una tradición y un alma.</p>
       <div class="hero-buttons">
-        <a href="#productos" class="btn-primary">Explorar productos</a>
-        <a href="#" class="btn-secondary">Ser artesano</a>
+        <a href="pages/catalogo.html" class="btn-primary">Explorar productos</a>
+        <a href="pages/auth.html" class="btn-secondary" id="hero-auth-btn">Únete gratis</a>
       </div>
     </div>
     <div class="hero-visual">
@@ -113,7 +139,7 @@
   <section class="productos-section" id="productos">
     <div class="section-header">
       <h2>Productos destacados</h2>
-      <a href="#">Ver todos →</a>
+      <a href="pages/catalogo.html">Ver todos →</a>
     </div>
     <div class="productos-grid" id="productosGrid">
       <div class="loading">Cargando productos...</div>
@@ -126,6 +152,41 @@
   </footer>
 
   <script>
+    // ── NAV DINÁMICO ──
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const navSesion = document.getElementById('nav-sesion');
+    const navChip = document.getElementById('nav-usuario-chip');
+    const heroAuthBtn = document.getElementById('hero-auth-btn');
+
+    // Contador carrito
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    document.getElementById('carrito-count').textContent = carrito.reduce((a, i) => a + i.cantidad, 0);
+
+    if (usuario) {
+      const inicial = usuario.nombre.charAt(0).toUpperCase();
+      const primerNombre = usuario.nombre.split(' ')[0];
+
+      navChip.innerHTML = `
+        <a href="pages/cuenta.html" class="nav-usuario-chip" title="Mi cuenta">
+          <div class="avatar">${inicial}</div>
+          <span class="nombre">${primerNombre}</span>
+        </a>`;
+
+      navSesion.innerHTML = `<button class="nav-btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>`;
+
+      heroAuthBtn.textContent = 'Mi cuenta';
+      heroAuthBtn.href = 'pages/cuenta.html';
+    } else {
+      navSesion.innerHTML = `<a href="pages/auth.html" class="nav-btn-login">Iniciar sesión</a>`;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.reload();
+    }
+
+    // ── PRODUCTOS ──
     const emojis = ['🏺','🧵','🪡','🪘','🌺','🎨','🪆','🧶','💎','🌿'];
 
     async function cargarProductos() {
@@ -146,7 +207,7 @@
               <p>${p.descripcion}</p>
               <div class="producto-footer">
                 <span class="producto-precio">$${Number(p.precio).toLocaleString('es-MX')}</span>
-                <button class="btn-comprar">Agregar</button>
+                <button class="btn-comprar" onclick="window.location.href='pages/catalogo.html'">Ver en catálogo</button>
               </div>
             </div>
           </div>
@@ -158,5 +219,6 @@
 
     cargarProductos();
   </script>
+
 </body>
 </html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Producto — ArtesanosMX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7;     --arena-dark: #EDD9B0;
+      --verde: #3A6B4A;     --verde-light: #4E8F63;
+      --text: #2C2C2C;      --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── NAV ── */
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
+    .nav-logo span { color: var(--verde); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-btn-carrito { background: var(--terracota); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .nav-btn-carrito:hover { background: var(--terracota-dark); }
+    .nav-divider { width: 1px; height: 20px; background: #E8E0D5; }
+    .nav-btn-cerrar { background: none; border: 1px solid #E8E0D5; color: var(--text-light); padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn-cerrar:hover { border-color: var(--terracota); color: var(--terracota); }
+    .nav-usuario-chip { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; background: var(--arena); border: 1px solid var(--arena-dark); padding: 0.4rem 0.9rem; border-radius: 20px; transition: all 0.2s; }
+    .nav-usuario-chip:hover { border-color: var(--verde); background: #e8f0eb; }
+    .nav-usuario-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav-usuario-chip .nombre { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .nav-btn-login { background: var(--verde); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn-login:hover { background: var(--verde-light); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb { padding: 1rem 3rem; font-size: 0.82rem; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; }
+    .breadcrumb a { color: var(--text-light); text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--terracota); }
+    .breadcrumb span { color: var(--text); font-weight: 500; }
+
+    /* ── LAYOUT ── */
+    .page-container { max-width: 1060px; margin: 0 auto 3rem; padding: 0 2rem; flex: 1; width: 100%; }
+
+    /* ── PRODUCTO PRINCIPAL ── */
+    .producto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+
+    /* Galería */
+    .galeria { display: flex; flex-direction: column; gap: 0.8rem; }
+    .imagen-principal { width: 100%; aspect-ratio: 1; border-radius: 20px; overflow: hidden; background: var(--arena-dark); display: flex; align-items: center; justify-content: center; font-size: 6rem; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+    .imagen-principal img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Info */
+    .producto-info { display: flex; flex-direction: column; gap: 1.2rem; }
+    .cat-tag { display: inline-block; background: var(--arena-dark); border: 1px solid #d8cdb8; color: var(--text-light); font-size: 0.78rem; font-weight: 600; padding: 0.2rem 0.8rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .producto-nombre { font-family: 'Playfair Display', serif; font-size: 2rem; line-height: 1.2; }
+    .producto-precio { font-size: 2rem; font-weight: 700; color: var(--terracota); }
+    .producto-descripcion { font-size: 0.95rem; color: var(--text-light); line-height: 1.8; }
+
+    /* Cantidad */
+    .cantidad-label { font-size: 0.82rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .cantidad-control { display: flex; align-items: center; gap: 0; border: 1.5px solid #e0d8ce; border-radius: 10px; overflow: hidden; width: fit-content; }
+    .qty-btn { width: 40px; height: 40px; border: none; background: var(--arena); font-size: 1.2rem; font-weight: 700; color: var(--terracota); cursor: pointer; transition: background 0.15s; }
+    .qty-btn:hover { background: var(--arena-dark); }
+    .qty-num { min-width: 50px; text-align: center; font-weight: 700; font-size: 1rem; background: var(--white); height: 40px; display: flex; align-items: center; justify-content: center; border-left: 1.5px solid #e0d8ce; border-right: 1.5px solid #e0d8ce; }
+
+    /* Botones */
+    .btns-accion { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .btn-agregar-grande { flex: 1; background: var(--terracota); color: var(--white); border: none; padding: 0.9rem 1.5rem; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-agregar-grande:hover { background: var(--terracota-dark); }
+    .btn-carrito-grande { flex: 1; background: transparent; color: var(--verde); border: 2px solid #c5dace; padding: 0.9rem 1.5rem; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-carrito-grande:hover { background: var(--verde); color: var(--white); border-color: var(--verde); }
+
+    /* Artesano chip */
+    .artesano-chip { background: var(--white); border: 1px solid #ede5da; border-radius: 12px; padding: 1rem 1.2rem; display: flex; align-items: center; gap: 1rem; }
+    .artesano-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .artesano-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .artesano-chip-info strong { font-size: 0.9rem; font-weight: 700; display: block; }
+    .artesano-chip-info span { font-size: 0.78rem; color: var(--text-light); }
+    .artesano-chip-info a { font-size: 0.78rem; color: var(--terracota); text-decoration: none; font-weight: 600; }
+    .artesano-chip-info a:hover { text-decoration: underline; }
+
+    /* Detalles extra */
+    .detalles-card { background: var(--white); border: 1px solid #ede5da; border-radius: 14px; padding: 1.2rem 1.4rem; }
+    .detalles-card h4 { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); margin-bottom: 0.8rem; }
+    .detalles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .detalle-item { font-size: 0.85rem; }
+    .detalle-item span { color: var(--text-light); display: block; font-size: 0.75rem; }
+
+    /* Garantías */
+    .garantias { display: flex; flex-direction: column; gap: 0.5rem; }
+    .garantia { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--text-light); }
+
+    /* ── PRODUCTOS RELACIONADOS ── */
+    .relacionados-section { margin-top: 1rem; }
+    .relacionados-titulo { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 1.5rem; }
+    .relacionados-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; }
+    .rel-card { background: var(--white); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; display: block; }
+    .rel-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .rel-img { height: 140px; background: var(--arena-dark); display: flex; align-items: center; justify-content: center; font-size: 3rem; overflow: hidden; }
+    .rel-img img { width: 100%; height: 100%; object-fit: cover; }
+    .rel-info { padding: 0.9rem; }
+    .rel-info h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .rel-info p { font-size: 0.82rem; color: var(--text-light); }
+    .rel-precio { font-weight: 700; color: var(--terracota); margin-top: 0.4rem; font-size: 0.95rem; }
+
+    /* Estado vacío/cargando */
+    .loading { text-align: center; padding: 4rem; color: var(--text-light); }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--verde); color: var(--white); padding: 0.8rem 1.4rem; border-radius: 10px; font-size: 0.88rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    footer { background: var(--text); color: #aaa; padding: 1.5rem; text-align: center; font-size: 0.85rem; margin-top: auto; }
+
+    @media (max-width: 768px) {
+      .producto-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+      .page-container { padding: 0 1.2rem; }
+      .breadcrumb { padding: 1rem 1.2rem; }
+      .relacionados-grid { grid-template-columns: 1fr 1fr; }
+      .detalles-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="artesanos.html">Artesanos</a></li>
+      <li>
+        <button class="nav-btn-carrito" onclick="window.location.href='carrito.html'">
+          🛒 Carrito <span id="carrito-count">0</span>
+        </button>
+      </li>
+      <li class="nav-divider"></li>
+      <li id="nav-sesion"></li>
+      <li id="nav-usuario-chip"></li>
+    </ul>
+  </nav>
+
+  <div class="breadcrumb">
+    <a href="../index.html">Inicio</a> › 
+    <a href="catalogo.html">Catálogo</a> › 
+    <span id="breadcrumb-nombre">Producto</span>
+  </div>
+
+  <div class="page-container">
+    <div id="contenido"><div class="loading">Cargando producto...</div></div>
+  </div>
+
+  <footer>© 2026 ArtesanosMX — Hecho con ❤️ en México</footer>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API    = 'http://localhost:3000/api';
+    const emojis = { 'Textiles':'🧵','Cerámica':'🏺','Joyería':'💎','Mezcal':'🥃','Alimentos':'🌶️','Madera':'🪆' };
+    const emojiDefault = '🎨';
+
+    // ── NAV ──
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const navSesion = document.getElementById('nav-sesion');
+    const navChip   = document.getElementById('nav-usuario-chip');
+    const carrito   = JSON.parse(localStorage.getItem('carrito')) || [];
+    document.getElementById('carrito-count').textContent = carrito.reduce((a,i) => a + i.cantidad, 0);
+
+    if (usuario) {
+      const inicial = usuario.nombre.charAt(0).toUpperCase();
+      const primerNombre = usuario.nombre.split(' ')[0];
+      navChip.innerHTML = `
+        <a href="cuenta.html" class="nav-usuario-chip">
+          <div class="avatar">${inicial}</div>
+          <span class="nombre">${primerNombre}</span>
+        </a>`;
+      navSesion.innerHTML = `<button class="nav-btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>`;
+    } else {
+      navSesion.innerHTML = `<a href="auth.html" class="nav-btn-login">Iniciar sesión</a>`;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '../index.html';
+    }
+
+    function showToast(msg, ok = true) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = ok ? 'var(--verde)' : 'var(--terracota)';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function formatMXN(n) {
+      return '$' + Number(n).toLocaleString('es-MX');
+    }
+
+    // ── Obtener ID del producto desde la URL ──
+    const params     = new URLSearchParams(window.location.search);
+    const productoId = params.get('id');
+
+    if (!productoId) {
+      window.location.href = 'catalogo.html';
+    }
+
+    let cantidad = 1;
+    let productoActual = null;
+
+    // ── Cargar producto ──
+    async function cargarProducto() {
+      try {
+        const res  = await fetch(`${API}/productos/${productoId}`);
+        const prod = await res.json();
+        if (!res.ok || !prod) throw new Error();
+        productoActual = prod;
+        renderProducto(prod);
+        cargarRelacionados(prod.categoria, prod.id_producto);
+      } catch(e) {
+        document.getElementById('contenido').innerHTML = `
+          <div class="loading">
+            <div style="font-size:2.5rem;margin-bottom:1rem;">😕</div>
+            <p>No se encontró el producto.</p>
+            <a href="catalogo.html" style="color:var(--terracota);font-weight:600;">← Volver al catálogo</a>
+          </div>`;
+      }
+    }
+
+    function renderProducto(p) {
+      document.title = `${p.nombre} — ArtesanosMX`;
+      document.getElementById('breadcrumb-nombre').textContent = p.nombre;
+
+      const imagenHtml = p.imagen_url
+        ? `<img src="${API.replace('/api','')}${p.imagen_url}" alt="${p.nombre}" onerror="this.parentElement.innerHTML='${emojis[p.categoria]||emojiDefault}'" />`
+        : emojis[p.categoria] || emojiDefault;
+
+      document.getElementById('contenido').innerHTML = `
+        <div class="producto-grid">
+
+          <!-- GALERÍA -->
+          <div class="galeria">
+            <div class="imagen-principal">${imagenHtml}</div>
+          </div>
+
+          <!-- INFO -->
+          <div class="producto-info">
+            ${p.categoria ? `<span class="cat-tag">${p.categoria}</span>` : ''}
+            <h1 class="producto-nombre">${p.nombre}</h1>
+            <div class="producto-precio">${formatMXN(p.precio)} <span style="font-size:0.9rem;color:var(--text-light);font-weight:400;">MXN</span></div>
+            <p class="producto-descripcion">${p.descripcion}</p>
+
+            <!-- Cantidad -->
+            <div>
+              <div class="cantidad-label">Cantidad</div>
+              <div class="cantidad-control">
+                <button class="qty-btn" onclick="cambiarCantidad(-1)">−</button>
+                <div class="qty-num" id="qty-display">1</div>
+                <button class="qty-btn" onclick="cambiarCantidad(1)">+</button>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="btns-accion">
+              <button class="btn-agregar-grande" onclick="agregarAlCarrito()">🛒 Agregar al carrito</button>
+              <button class="btn-carrito-grande" onclick="comprarAhora()">Comprar ahora</button>
+            </div>
+
+            <!-- Artesano -->
+            ${p.artesano_nombre ? `
+            <div class="artesano-chip">
+              <div class="artesano-avatar">
+                ${p.artesano_foto ? `<img src="${API.replace('/api','')}${p.artesano_foto}" alt="${p.artesano_nombre}" onerror="this.outerHTML='${p.artesano_nombre.charAt(0).toUpperCase()}'" />` : p.artesano_nombre.charAt(0).toUpperCase()}
+              </div>
+              <div class="artesano-chip-info">
+                <strong>${p.artesano_nombre}</strong>
+                <span>${p.artesano_region || 'Oaxaca, México'}</span>
+                <a href="artesanos.html">Ver perfil del artesano →</a>
+              </div>
+            </div>` : ''}
+
+            <!-- Detalles -->
+            <div class="detalles-card">
+              <h4>Detalles del producto</h4>
+              <div class="detalles-grid">
+                <div class="detalle-item"><span>Categoría</span>${p.categoria || '—'}</div>
+                <div class="detalle-item"><span>Disponibilidad</span>${p.stock > 0 ? `${p.stock} en stock` : (p.stock === null ? 'Disponible' : 'Agotado')}</div>
+                <div class="detalle-item"><span>Origen</span>${p.artesano_region || 'México'}</div>
+                <div class="detalle-item"><span>ID de producto</span>#${p.id_producto}</div>
+              </div>
+            </div>
+
+            <!-- Garantías -->
+            <div class="garantias">
+              <div class="garantia">✅ Comercio justo — el artesano recibe el 100%</div>
+              <div class="garantia">🔄 Devoluciones en 30 días</div>
+              <div class="garantia">📦 Empaque artesanal y sustentable</div>
+              <div class="garantia">🔒 Pago seguro con cifrado SSL</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RELACIONADOS -->
+        <div class="relacionados-section">
+          <h2 class="relacionados-titulo">Productos relacionados</h2>
+          <div class="relacionados-grid" id="relacionados-grid">
+            <div class="loading" style="grid-column:1/-1;">Cargando...</div>
+          </div>
+        </div>`;
+    }
+
+    // ── Cantidad ──
+    function cambiarCantidad(delta) {
+      cantidad = Math.max(1, Math.min(99, cantidad + delta));
+      document.getElementById('qty-display').textContent = cantidad;
+    }
+
+    // ── Carrito ──
+    function agregarAlCarrito() {
+      if (!productoActual) return;
+      let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const existe = carrito.find(i => i.id === productoActual.id_producto);
+      if (existe) {
+        existe.cantidad += cantidad;
+      } else {
+        carrito.push({
+          id:        productoActual.id_producto,
+          nombre:    productoActual.nombre,
+          precio:    productoActual.precio,
+          categoria: productoActual.categoria,
+          imagen_url: productoActual.imagen_url || null,
+          cantidad,
+        });
+      }
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+      document.getElementById('carrito-count').textContent = carrito.reduce((a,i) => a + i.cantidad, 0);
+      showToast(`✓ ${productoActual.nombre} agregado al carrito`);
+    }
+
+    function comprarAhora() {
+      agregarAlCarrito();
+      setTimeout(() => window.location.href = 'carrito.html', 600);
+    }
+
+    // ── Relacionados ──
+    async function cargarRelacionados(categoria, idActual) {
+      try {
+        const res      = await fetch(`${API}/productos`);
+        const todos    = await res.json();
+        const filtrados = todos
+          .filter(p => p.categoria === categoria && p.id_producto !== idActual)
+          .slice(0, 4);
+
+        const grid = document.getElementById('relacionados-grid');
+        if (!grid) return;
+
+        if (!filtrados.length) {
+          grid.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;">No hay productos relacionados.</p>';
+          return;
+        }
+
+        grid.innerHTML = filtrados.map(p => {
+          const img = p.imagen_url
+            ? `<img src="${API.replace('/api','')}${p.imagen_url}" alt="${p.nombre}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${emojis[p.categoria]||emojiDefault}'" />`
+            : (emojis[p.categoria] || emojiDefault);
+          return `
+            <a href="producto_detalle.html?id=${p.id_producto}" class="rel-card">
+              <div class="rel-img">${img}</div>
+              <div class="rel-info">
+                <h4>${p.nombre}</h4>
+                <p>${(p.descripcion||'').substring(0,60)}…</p>
+                <div class="rel-precio">${formatMXN(p.precio)} MXN</div>
+              </div>
+            </a>`;
+        }).join('');
+      } catch(e) {}
+    }
+
+    cargarProducto();
+  </script>
+
+</body>
+</html>

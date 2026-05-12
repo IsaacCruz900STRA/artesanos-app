@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Artesanos — ArtesanosMX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7; --arena-dark: #EDD9B0;
+      --verde: #3A6B4A; --verde-light: #4E8F63;
+      --text: #2C2C2C; --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── NAV UNIFICADO ── */
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
+    .nav-logo span { color: var(--verde); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-links a.active { color: var(--terracota); font-weight: 600; }
+    .nav-btn-carrito { background: var(--terracota); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .nav-btn-carrito:hover { background: var(--terracota-dark); }
+    .nav-divider { width: 1px; height: 20px; background: #E8E0D5; }
+    .nav-btn-cerrar { background: none; border: 1px solid #E8E0D5; color: var(--text-light); padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn-cerrar:hover { border-color: var(--terracota); color: var(--terracota); }
+    .nav-usuario-chip { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; background: var(--arena); border: 1px solid var(--arena-dark); padding: 0.4rem 0.9rem; border-radius: 20px; transition: all 0.2s; }
+    .nav-usuario-chip:hover { border-color: var(--verde); background: #e8f0eb; }
+    .nav-usuario-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav-usuario-chip .nombre { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .nav-btn-login { background: var(--verde); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn-login:hover { background: var(--verde-light); }
+
+    /* PÁGINA */
+    .page-header { padding: 3rem 5rem 0; }
+    .page-header h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; margin-bottom: 0.4rem; }
+    .page-header p { color: var(--text-light); font-size: 1rem; line-height: 1.6; max-width: 520px; }
+
+    .search-section { padding: 1.8rem 5rem; display: flex; gap: 1rem; align-items: center; }
+    .search-input { flex: 1; padding: 0.75rem 1rem; border: 2px solid #E8E0D5; border-radius: 10px; font-size: 0.95rem; outline: none; background: var(--white); transition: border-color 0.2s; }
+    .search-input:focus { border-color: var(--terracota); }
+    .btn-buscar { background: var(--terracota); color: var(--white); border: none; padding: 0.75rem 1.5rem; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-buscar:hover { background: var(--terracota-dark); }
+
+    .main-section { padding: 0 5rem 4rem; flex: 1; }
+    .results-info { font-size: 0.88rem; color: var(--text-light); margin-bottom: 1.5rem; }
+    .results-info strong { color: var(--text); }
+
+    /* TARJETAS */
+    .artesanos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
+    .artesano-card { background: var(--white); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.2s, box-shadow 0.2s; display: flex; gap: 1rem; padding: 1.4rem; align-items: flex-start; }
+    .artesano-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.11); }
+
+    /* Avatar terracota con inicial */
+    .artesano-avatar { width: 56px; height: 56px; border-radius: 14px; background: var(--arena-dark); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; border: 2px solid #f0e8d8; }
+
+    .artesano-body { flex: 1; }
+    .artesano-nombre { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+    .artesano-ubicacion { font-size: 0.82rem; color: var(--text-light); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.3rem; }
+    .artesano-descripcion { font-size: 0.85rem; color: var(--text-light); line-height: 1.55; margin-bottom: 1rem; }
+
+    .artesano-stats { display: flex; gap: 1.2rem; margin-bottom: 1rem; }
+    .stat-item { text-align: center; }
+    .stat-item .stat-num { font-weight: 700; font-size: 1rem; color: var(--terracota); display: block; }
+    .stat-item .stat-label { font-size: 0.72rem; color: var(--text-light); }
+
+    .artesano-actions { display: flex; gap: 0.6rem; }
+    .btn-perfil { flex: 1; background: var(--terracota); color: var(--white); border: none; padding: 0.5rem; border-radius: 8px; font-size: 0.83rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-perfil:hover { background: var(--terracota-dark); }
+    .btn-contactar { flex: 1; background: transparent; color: var(--verde); border: 1.5px solid #c5dace; padding: 0.5rem; border-radius: 8px; font-size: 0.83rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-contactar:hover { background: var(--verde); color: var(--white); border-color: var(--verde); }
+
+    .loading { text-align: center; padding: 4rem; color: var(--text-light); grid-column: 1/-1; font-size: 1rem; }
+    .sin-resultados { text-align: center; padding: 4rem; color: var(--text-light); grid-column: 1/-1; }
+    .sin-resultados .emoji { font-size: 3rem; display: block; margin-bottom: 1rem; }
+
+    footer { background: var(--text); color: #aaa; padding: 1.5rem; text-align: center; font-size: 0.85rem; margin-top: auto; }
+
+    @media (max-width: 768px) {
+      .page-header, .search-section, .main-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .page-header h1 { font-size: 1.8rem; }
+      .artesanos-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="artesanos.html" class="active">Artesanos</a></li>
+      <li>
+        <button class="nav-btn-carrito" onclick="window.location.href='carrito.html'">
+          🛒 Carrito <span id="carrito-count">0</span>
+        </button>
+      </li>
+      <li class="nav-divider"></li>
+      <li id="nav-sesion"></li>
+      <li id="nav-usuario-chip"></li>
+    </ul>
+  </nav>
+
+  <div class="page-header">
+    <h1>Nuestros Artesanos</h1>
+    <p>Conoce a las familias y comunidades que dan vida a cada producto. Comercio justo, tradición viva.</p>
+  </div>
+
+  <div class="search-section">
+    <input type="text" class="search-input" id="buscador" placeholder="Buscar artesano, comunidad o especialidad..." oninput="filtrar()" />
+    <button class="btn-buscar" onclick="filtrar()">Buscar</button>
+  </div>
+
+  <div class="main-section">
+    <p class="results-info" id="results-info"></p>
+    <div class="artesanos-grid" id="artesanosGrid">
+      <div class="loading">Cargando artesanos...</div>
+    </div>
+  </div>
+
+  <footer>© 2026 ArtesanosMX — Hecho con ❤️ en México</footer>
+
+  <script>
+    const avatares = ['🏺','🧵','🪡','🪘','🌺','🎨','🪆','🧶'];
+    let todosLosArtesanos = [];
+
+    // ── NAV DINÁMICO ──
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const navSesion = document.getElementById('nav-sesion');
+    const navChip = document.getElementById('nav-usuario-chip');
+
+    // Actualizar contador del carrito
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    document.getElementById('carrito-count').textContent = carrito.reduce((a, i) => a + i.cantidad, 0);
+
+    if (usuario) {
+      const inicial = usuario.nombre.charAt(0).toUpperCase();
+      const primerNombre = usuario.nombre.split(' ')[0];
+
+      navChip.innerHTML = `
+        <a href="cuenta.html" class="nav-usuario-chip" title="Mi cuenta">
+          <div class="avatar">${inicial}</div>
+          <span class="nombre">${primerNombre}</span>
+        </a>`;
+
+      navSesion.innerHTML = `<button class="nav-btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>`;
+    } else {
+      navSesion.innerHTML = `<a href="auth.html" class="nav-btn-login">Iniciar sesión</a>`;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '../index.html';
+    }
+
+    function añosEnRed(fecha) {
+      const años = Math.floor((new Date() - new Date(fecha)) / (1000 * 60 * 60 * 24 * 365));
+      return años < 1 ? 'Nuevo' : `${años} año${años > 1 ? 's' : ''}`;
+    }
+
+    async function cargarArtesanos() {
+      const grid = document.getElementById('artesanosGrid');
+      try {
+        const res = await fetch('http://localhost:3000/api/artesanos');
+        if (!res.ok) throw new Error();
+        todosLosArtesanos = await res.json();
+        renderArtesanos(todosLosArtesanos);
+      } catch(e) {
+        grid.innerHTML = '<div class="loading">No se pudo conectar con la API.</div>';
+      }
+    }
+
+    function renderArtesanos(artesanos) {
+      const grid = document.getElementById('artesanosGrid');
+      const info = document.getElementById('results-info');
+      info.innerHTML = `Mostrando <strong>${artesanos.length} artesano${artesanos.length !== 1 ? 's' : ''}</strong> en la red ArtesanosMX`;
+
+      if (artesanos.length === 0) {
+        grid.innerHTML = '<div class="sin-resultados"><span class="emoji">🔍</span>No se encontraron artesanos.</div>';
+        return;
+      }
+
+      grid.innerHTML = artesanos.map((a, i) => `
+        <div class="artesano-card">
+          <div class="artesano-avatar">${avatares[i % avatares.length]}</div>
+          <div class="artesano-body">
+            <div class="artesano-nombre">${a.nombre}</div>
+            <div class="artesano-ubicacion">📍 ${a.estado || 'Oaxaca, México'}</div>
+            <div class="artesano-descripcion">${a.descripcion || 'Artesano comprometido con preservar las tradiciones y técnicas ancestrales de México.'}</div>
+            <div class="artesano-stats">
+              <div class="stat-item">
+                <span class="stat-num">${a.total_productos}</span>
+                <span class="stat-label">Productos</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num">⭐ 5.0</span>
+                <span class="stat-label">Calificación</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num">${añosEnRed(a.fecha_registro)}</span>
+                <span class="stat-label">En red</span>
+              </div>
+            </div>
+            <div class="artesano-actions">
+              <button class="btn-perfil">Ver perfil</button>
+              <button class="btn-contactar" onclick="contactar('${a.email}')">Contactar</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filtrar() {
+      const busqueda = document.getElementById('buscador').value.toLowerCase();
+      if (!busqueda) { renderArtesanos(todosLosArtesanos); return; }
+      const filtrados = todosLosArtesanos.filter(a =>
+        a.nombre.toLowerCase().includes(busqueda) ||
+        (a.estado && a.estado.toLowerCase().includes(busqueda)) ||
+        (a.descripcion && a.descripcion.toLowerCase().includes(busqueda))
+      );
+      renderArtesanos(filtrados);
+    }
+
+    function contactar(email) {
+      if (!usuario) {
+        alert('Debes iniciar sesión para contactar a un artesano');
+        window.location.href = 'auth.html';
+        return;
+      }
+      window.location.href = `mailto:${email}`;
+    }
+
+    cargarArtesanos();
+  </script>
+
+</body>
+</html>

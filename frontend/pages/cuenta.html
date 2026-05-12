@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Cuenta — ArtesanosMX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7;     --arena-dark: #EDD9B0;
+      --verde: #3A6B4A;     --verde-light: #4E8F63;
+      --text: #2C2C2C;      --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── NAV ── */
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
+    .nav-logo span { color: var(--verde); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-btn-carrito { background: var(--terracota); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .nav-btn-carrito:hover { background: var(--terracota-dark); }
+    .nav-divider { width: 1px; height: 20px; background: #E8E0D5; }
+    .nav-btn-cerrar { background: none; border: 1px solid #E8E0D5; color: var(--text-light); padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn-cerrar:hover { border-color: var(--terracota); color: var(--terracota); }
+    .nav-usuario-chip { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; background: #e8f0eb; border: 1px solid var(--verde); padding: 0.4rem 0.9rem; border-radius: 20px; }
+    .nav-usuario-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav-usuario-chip .nombre { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .nav-btn-login { background: var(--verde); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn-login:hover { background: var(--verde-light); }
+
+    /* ── LAYOUT ── */
+    .page-container { max-width: 1060px; margin: 2.5rem auto; padding: 0 2rem; display: grid; grid-template-columns: 240px 1fr; gap: 1.8rem; flex: 1; width: 100%; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { display: flex; flex-direction: column; gap: 0.4rem; }
+    .perfil-mini { background: var(--verde); border-radius: 16px; padding: 1.4rem; color: var(--white); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 1rem; }
+    .avatar-grande { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; flex-shrink: 0; }
+    .perfil-mini-info strong { font-size: 0.95rem; font-weight: 700; display: block; }
+    .perfil-mini-info span { font-size: 0.78rem; opacity: 0.75; word-break: break-all; }
+    .nav-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 1rem; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--text); transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: var(--arena-dark); }
+    .nav-item.active { background: var(--white); color: var(--terracota); font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .nav-item .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+    .sidebar-divider { border: none; border-top: 1px solid #e0d8ce; margin: 0.4rem 0; }
+    .btn-cerrar-sesion { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 1rem; border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 500; color: var(--terracota); background: none; border: none; width: 100%; text-align: left; transition: all 0.2s; }
+    .btn-cerrar-sesion:hover { background: #fdf0ea; }
+
+    /* ── CONTENIDO ── */
+    .content-area { display: flex; flex-direction: column; }
+    .tab-panel { display: none; flex-direction: column; gap: 1.2rem; }
+    .tab-panel.active { display: flex; }
+
+    .card { background: var(--white); border: 1px solid #ede5da; border-radius: 16px; padding: 1.6rem; }
+    .card-titulo { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .card-sub { font-size: 0.83rem; color: var(--text-light); margin-bottom: 1.4rem; }
+
+    /* Form */
+    .form-grid { display: grid; gap: 1rem; }
+    .col-2 { grid-template-columns: 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-group input { padding: 0.65rem 0.9rem; border: 1.5px solid #e0d8ce; border-radius: 8px; font-size: 0.92rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; background: var(--white); color: var(--text); }
+    .form-group input:focus { border-color: var(--terracota); }
+    .form-group input:disabled { background: #f8f4ef; color: var(--text-light); cursor: not-allowed; }
+    .input-hint { font-size: 0.75rem; color: var(--text-light); margin-top: 0.2rem; }
+    .form-actions { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 0.8rem; }
+    .btn-guardar { background: var(--terracota); color: var(--white); border: none; padding: 0.65rem 1.6rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-guardar:hover { background: var(--terracota-dark); }
+    .btn-cancelar { background: none; border: 1.5px solid #ddd; color: var(--text-light); padding: 0.65rem 1.2rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-cancelar:hover { border-color: var(--text-light); color: var(--text); }
+
+    /* Toast inline */
+    .toast-inline { padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; display: none; margin-bottom: 0.8rem; }
+    .toast-inline.ok    { background: #eaf4ee; color: var(--verde); border: 1px solid #c5dace; }
+    .toast-inline.error { background: #fdf0ea; color: var(--terracota); border: 1px solid #f0c4a8; }
+
+    /* ── PEDIDOS ── */
+    .pedidos-lista { display: flex; flex-direction: column; gap: 1rem; }
+    .pedido-card { background: var(--white); border: 1px solid #ede5da; border-radius: 14px; overflow: hidden; transition: box-shadow 0.2s; }
+    .pedido-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .pedido-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.3rem; border-bottom: 1px solid #f5ede0; }
+    .pedido-num { font-weight: 700; font-size: 0.9rem; color: var(--terracota); }
+    .pedido-fecha { font-size: 0.78rem; color: var(--text-light); margin-top: 0.1rem; }
+    .pedido-badge { padding: 0.25rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-entregado  { background: #eaf4ee; color: var(--verde); }
+    .badge-en-camino  { background: #fff8e8; color: #b07c10; }
+    .badge-procesando { background: #fdf0ea; color: var(--terracota); }
+    .badge-cancelado  { background: #f5f5f5; color: #999; }
+    .pedido-body { padding: 1rem 1.3rem; display: flex; align-items: center; gap: 1rem; }
+    .pedido-emojis { display: flex; gap: 0.3rem; }
+    .pedido-emoji-item { width: 38px; height: 38px; background: var(--arena-dark); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .pedido-info { flex: 1; }
+    .pedido-info strong { font-size: 0.88rem; font-weight: 600; display: block; }
+    .pedido-info p { font-size: 0.78rem; color: var(--text-light); margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+    .pedido-total { font-weight: 700; font-size: 1rem; color: var(--terracota); flex-shrink: 0; }
+    .pedido-footer { padding: 0.7rem 1.3rem; background: #fdfaf6; border-top: 1px solid #f5ede0; display: flex; justify-content: space-between; align-items: center; }
+    .pedido-footer span { font-size: 0.78rem; color: var(--text-light); }
+    .btn-ver-pedido { background: none; border: 1.5px solid #e0d8ce; color: var(--text); padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-ver-pedido:hover { border-color: var(--terracota); color: var(--terracota); }
+    .pedidos-vacio { text-align: center; padding: 3.5rem 2rem; }
+    .pedidos-vacio .emoji { font-size: 3rem; display: block; margin-bottom: 1rem; }
+    .pedidos-vacio h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .pedidos-vacio p { color: var(--text-light); font-size: 0.88rem; margin-bottom: 1.2rem; }
+    .btn-catalogo { background: var(--terracota); color: var(--white); border: none; padding: 0.7rem 1.8rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s; }
+    .btn-catalogo:hover { background: var(--terracota-dark); }
+
+    /* ── SIN SESIÓN ── */
+    .no-sesion { text-align: center; padding: 5rem 2rem; grid-column: 1/-1; }
+    .no-sesion .emoji { font-size: 3rem; display: block; margin-bottom: 1rem; }
+    .no-sesion h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.8rem; }
+    .no-sesion p { color: var(--text-light); margin-bottom: 1.5rem; }
+
+    /* Toast flotante */
+    .toast-float { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--verde); color: var(--white); padding: 0.8rem 1.4rem; border-radius: 10px; font-size: 0.88rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+    .toast-float.show { opacity: 1; transform: translateY(0); }
+
+    footer { background: var(--text); color: #aaa; padding: 1.5rem; text-align: center; font-size: 0.85rem; margin-top: auto; }
+
+    @media (max-width: 768px) {
+      .page-container { grid-template-columns: 1fr; padding: 0 1.2rem; }
+      .form-grid.col-2 { grid-template-columns: 1fr; }
+      .perfil-mini { display: none; }
+      .sidebar { flex-direction: row; flex-wrap: wrap; gap: 0.3rem; }
+      .nav-item { flex: 1; justify-content: center; min-width: 80px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="artesanos.html">Artesanos</a></li>
+      <li>
+        <button class="nav-btn-carrito" onclick="window.location.href='carrito.html'">
+          🛒 Carrito <span id="carrito-count">0</span>
+        </button>
+      </li>
+      <li class="nav-divider"></li>
+      <li id="nav-sesion"></li>
+      <li id="nav-usuario-chip"></li>
+    </ul>
+  </nav>
+
+  <div class="page-container" id="page-container"></div>
+
+  <footer>© 2026 ArtesanosMX — Hecho con ❤️ en México</footer>
+  <div class="toast-float" id="toast"></div>
+
+  <script>
+    const usuario   = JSON.parse(localStorage.getItem('usuario'));
+    const navSesion = document.getElementById('nav-sesion');
+    const navChip   = document.getElementById('nav-usuario-chip');
+    const container = document.getElementById('page-container');
+    const emojis    = { 'Textiles':'🧵','Cerámica':'🏺','Joyería':'💎','Mezcal':'🥃','Alimentos':'🌶️','Madera':'🪆' };
+    const emojiDefault = '🎨';
+    const badges = {
+      'entregado':  ['badge-entregado',  'Entregado'],
+      'en-camino':  ['badge-en-camino',  'En camino'],
+      'procesando': ['badge-procesando', 'Procesando'],
+      'cancelado':  ['badge-cancelado',  'Cancelado'],
+    };
+
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    document.getElementById('carrito-count').textContent = carrito.reduce((a,i) => a + i.cantidad, 0);
+
+    function showToast(msg, ok = true) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = ok ? 'var(--verde)' : 'var(--terracota)';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '../index.html';
+    }
+
+    if (!usuario) {
+      navSesion.innerHTML = `<a href="auth.html" class="nav-btn-login">Iniciar sesión</a>`;
+      container.innerHTML = `
+        <div class="no-sesion">
+          <span class="emoji">🔐</span>
+          <h2>Inicia sesión para ver tu cuenta</h2>
+          <p>Necesitas una cuenta para acceder a esta sección.</p>
+          <a href="auth.html" class="btn-catalogo">Iniciar sesión</a>
+        </div>`;
+    } else {
+
+      const inicial      = usuario.nombre.charAt(0).toUpperCase();
+      const primerNombre = usuario.nombre.split(' ')[0];
+
+      navChip.innerHTML = `
+        <span class="nav-usuario-chip">
+          <div class="avatar">${inicial}</div>
+          <span class="nombre">${primerNombre}</span>
+        </span>`;
+      navSesion.innerHTML = `<button class="nav-btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>`;
+
+      // Absorber pedido reciente si viene de confirmacion.html
+      const pedidosHistorial = JSON.parse(localStorage.getItem('pedidos_historial')) || [];
+      const pedidoReciente   = JSON.parse(sessionStorage.getItem('pedido_confirmado'));
+      const carritoReciente  = JSON.parse(sessionStorage.getItem('carrito_confirmado'));
+      if (pedidoReciente && carritoReciente) {
+        pedidosHistorial.unshift({
+          id:    'AMX-' + Math.floor(100000 + Math.random() * 900000),
+          fecha: new Date().toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' }),
+          estado: 'procesando',
+          items:  carritoReciente,
+          total:  carritoReciente.reduce((a,i) => a + i.precio * i.cantidad, 0),
+          envio:  parseInt(pedidoReciente.envio || 99),
+        });
+        localStorage.setItem('pedidos_historial', JSON.stringify(pedidosHistorial));
+        sessionStorage.removeItem('pedido_confirmado');
+        sessionStorage.removeItem('carrito_confirmado');
+      }
+
+      const fechaRegistro = usuario.fecha_registro
+        ? new Date(usuario.fecha_registro).toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' })
+        : 'No disponible';
+
+      // ── Render pedidos ──
+      const renderPedidos = () => pedidosHistorial.length === 0
+        ? `<div class="pedidos-vacio">
+             <span class="emoji">📭</span>
+             <h3>Aún no tienes pedidos</h3>
+             <p>Explora el catálogo y haz tu primera compra.</p>
+             <a href="catalogo.html" class="btn-catalogo">Ir al catálogo</a>
+           </div>`
+        : pedidosHistorial.map(p => {
+            const [cls, lbl] = badges[p.estado] || badges['procesando'];
+            const iva   = Math.round((p.total + p.envio) * 0.16);
+            const total = p.total + p.envio + iva;
+            return `
+              <div class="pedido-card">
+                <div class="pedido-header">
+                  <div>
+                    <div class="pedido-num">#${p.id}</div>
+                    <div class="pedido-fecha">${p.fecha}</div>
+                  </div>
+                  <span class="pedido-badge ${cls}">${lbl}</span>
+                </div>
+                <div class="pedido-body">
+                  <div class="pedido-emojis">
+                    ${p.items.slice(0,4).map(i => `<div class="pedido-emoji-item">${emojis[i.categoria] || emojiDefault}</div>`).join('')}
+                    ${p.items.length > 4 ? `<div class="pedido-emoji-item" style="font-size:0.72rem;color:var(--text-light);">+${p.items.length-4}</div>` : ''}
+                  </div>
+                  <div class="pedido-info">
+                    <strong>${p.items.length} producto${p.items.length > 1 ? 's' : ''}</strong>
+                    <p>${p.items.map(i => i.nombre).join(', ')}</p>
+                  </div>
+                  <span class="pedido-total">$${Math.round(total).toLocaleString('es-MX')} MXN</span>
+                </div>
+                <div class="pedido-footer">
+                  <span>Envío $${p.envio} MXN · IVA incluido</span>
+                  <button class="btn-ver-pedido" onclick="showToast('Detalle del pedido #${p.id}')">Ver detalle</button>
+                </div>
+              </div>`;
+          }).join('');
+
+      container.innerHTML = `
+        <div class="sidebar">
+          <div class="perfil-mini">
+            <div class="avatar-grande">${inicial}</div>
+            <div class="perfil-mini-info">
+              <strong>${usuario.nombre}</strong>
+              <span>${usuario.email}</span>
+            </div>
+          </div>
+          <button class="nav-item active" onclick="cambiarTab('perfil',this)"><span class="icon">👤</span> Mi perfil</button>
+          <button class="nav-item" onclick="cambiarTab('pedidos',this)"><span class="icon">📦</span> Mis pedidos</button>
+          <button class="nav-item" onclick="cambiarTab('seguridad',this)"><span class="icon">🔒</span> Seguridad</button>
+          ${usuario.rol === 'artesano' ? `
+          <hr class="sidebar-divider">
+          <a href="artesano_dashboard.html" class="nav-item" style="background:var(--terracota);color:#fff;text-decoration:none;font-weight:700;">
+            <span class="icon">🏺</span> Panel Artesano
+          </a>` : ''}
+          <hr class="sidebar-divider">
+          <button class="btn-cerrar-sesion" onclick="cerrarSesion()"><span>🚪</span> Cerrar sesión</button>
+        </div>
+
+        <div class="content-area">
+
+          <!-- PERFIL -->
+          <div class="tab-panel active" id="tab-perfil">
+            <div class="card">
+              <div class="card-titulo">Información personal</div>
+              <div class="card-sub">Actualiza tu nombre, correo y teléfono.</div>
+              <div id="toast-perfil" class="toast-inline"></div>
+              <div class="form-grid col-2">
+                <div class="form-group">
+                  <label>Nombre completo</label>
+                  <input type="text" id="p-nombre" value="${usuario.nombre}" />
+                </div>
+                <div class="form-group">
+                  <label>Correo electrónico</label>
+                  <input type="email" id="p-email" value="${usuario.email}" />
+                  <span class="input-hint">Se usará para iniciar sesión.</span>
+                </div>
+                <div class="form-group">
+                  <label>Teléfono</label>
+                  <input type="tel" id="p-tel" value="${usuario.telefono || ''}" placeholder="(000) 000-0000" />
+                </div>
+                <div class="form-group">
+                  <label>Miembro desde</label>
+                  <input type="text" value="${fechaRegistro}" disabled />
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn-cancelar" onclick="resetPerfil()">Cancelar</button>
+                <button class="btn-guardar" onclick="guardarPerfil()">Guardar cambios</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-titulo">Dirección de envío predeterminada</div>
+              <div class="card-sub">Se usará al hacer un pedido.</div>
+              <div class="form-grid col-2">
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label>Calle y número</label>
+                  <input type="text" id="d-calle" value="${usuario.direccion || ''}" placeholder="Ej. Macedonio Alcalá 123, Col. Centro" />
+                </div>
+                <div class="form-group">
+                  <label>Ciudad</label>
+                  <input type="text" id="d-ciudad" value="${usuario.ciudad || ''}" placeholder="Ej. Oaxaca de Juárez" />
+                </div>
+                <div class="form-group">
+                  <label>Estado</label>
+                  <input type="text" id="d-estado" value="${usuario.estado || ''}" placeholder="Ej. Oaxaca" />
+                </div>
+                <div class="form-group">
+                  <label>Código Postal</label>
+                  <input type="text" id="d-cp" value="${usuario.cp || ''}" placeholder="00000" maxlength="5" />
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn-guardar" onclick="guardarDireccion()">Guardar dirección</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PEDIDOS -->
+          <div class="tab-panel" id="tab-pedidos">
+            <div class="card">
+              <div class="card-titulo">Mis pedidos</div>
+              <div class="card-sub">Historial de todas tus compras en ArtesanosMX.</div>
+            </div>
+            <div class="pedidos-lista">${renderPedidos()}</div>
+          </div>
+
+          <!-- SEGURIDAD -->
+          <div class="tab-panel" id="tab-seguridad">
+            <div class="card">
+              <div class="card-titulo">Cambiar contraseña</div>
+              <div class="card-sub">Elige una contraseña segura de al menos 8 caracteres.</div>
+              <div id="toast-pwd" class="toast-inline"></div>
+              <div class="form-grid" style="max-width:420px;">
+                <div class="form-group">
+                  <label>Contraseña actual</label>
+                  <input type="password" id="pwd-actual" placeholder="••••••••" />
+                </div>
+                <div class="form-group">
+                  <label>Nueva contraseña</label>
+                  <input type="password" id="pwd-nueva" placeholder="Mínimo 8 caracteres" />
+                </div>
+                <div class="form-group">
+                  <label>Confirmar nueva contraseña</label>
+                  <input type="password" id="pwd-confirmar" placeholder="Repite la nueva contraseña" />
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn-guardar" onclick="cambiarPassword()">Actualizar contraseña</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-titulo" style="color:var(--terracota);">Zona de peligro</div>
+              <div class="card-sub">Esta acción es permanente y no se puede deshacer.</div>
+              <button class="btn-cancelar" style="border-color:#f0c4a8;color:var(--terracota);" onclick="confirmarEliminarCuenta()">
+                Eliminar mi cuenta
+              </button>
+            </div>
+          </div>
+
+        </div>`;
+    }
+
+    function cambiarTab(tab, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+
+    function toastInline(id, msg, ok) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'toast-inline ' + (ok ? 'ok' : 'error');
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    function guardarPerfil() {
+      const nombre = document.getElementById('p-nombre').value.trim();
+      const email  = document.getElementById('p-email').value.trim();
+      const tel    = document.getElementById('p-tel').value.trim();
+      if (!nombre || !email) { toastInline('toast-perfil','El nombre y el correo son obligatorios.',false); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toastInline('toast-perfil','Ingresa un correo válido.',false); return; }
+      localStorage.setItem('usuario', JSON.stringify({ ...usuario, nombre, email, telefono: tel }));
+      toastInline('toast-perfil','✓ Cambios guardados correctamente.',true);
+      showToast('✓ Perfil actualizado');
+    }
+
+    function resetPerfil() {
+      document.getElementById('p-nombre').value = usuario.nombre;
+      document.getElementById('p-email').value  = usuario.email;
+      document.getElementById('p-tel').value    = usuario.telefono || '';
+    }
+
+    function guardarDireccion() {
+      const datos = {
+        ...usuario,
+        direccion: document.getElementById('d-calle').value.trim(),
+        ciudad:    document.getElementById('d-ciudad').value.trim(),
+        estado:    document.getElementById('d-estado').value.trim(),
+        cp:        document.getElementById('d-cp').value.trim(),
+      };
+      localStorage.setItem('usuario', JSON.stringify(datos));
+      showToast('✓ Dirección guardada');
+    }
+
+    function cambiarPassword() {
+      const actual    = document.getElementById('pwd-actual').value;
+      const nueva     = document.getElementById('pwd-nueva').value;
+      const confirmar = document.getElementById('pwd-confirmar').value;
+      if (!actual || !nueva || !confirmar) { toastInline('toast-pwd','Completa todos los campos.',false); return; }
+      if (nueva.length < 8) { toastInline('toast-pwd','Mínimo 8 caracteres.',false); return; }
+      if (nueva !== confirmar) { toastInline('toast-pwd','Las contraseñas no coinciden.',false); return; }
+      document.getElementById('pwd-actual').value    = '';
+      document.getElementById('pwd-nueva').value     = '';
+      document.getElementById('pwd-confirmar').value = '';
+      toastInline('toast-pwd','✓ Contraseña actualizada.',true);
+    }
+
+    function confirmarEliminarCuenta() {
+      if (confirm('¿Eliminar tu cuenta? Esta acción no se puede deshacer.')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+        localStorage.removeItem('pedidos_historial');
+        window.location.href = '../index.html';
+      }
+    }
+  </script>
+
+</body>
+</html>

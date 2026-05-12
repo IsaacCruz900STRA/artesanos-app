@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Artesanos MX — Acceso</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7; --arena-dark: #EDD9B0;
+      --verde: #3A6B4A; --verde-light: #4E8F63;
+      --text: #2C2C2C; --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
+    .nav-logo span { color: var(--verde); }
+
+    .auth-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; }
+    .auth-box { background: var(--white); border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.1); width: 100%; max-width: 460px; overflow: hidden; }
+
+    .tabs { display: flex; }
+    .tab { flex: 1; padding: 1.2rem; text-align: center; font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none; background: var(--arena-dark); color: var(--text-light); transition: all 0.2s; }
+    .tab.active { background: var(--white); color: var(--terracota); border-bottom: 3px solid var(--terracota); }
+
+    .form-container { padding: 2rem; }
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    .form-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.4rem; }
+    .form-subtitle { font-size: 0.9rem; color: var(--text-light); margin-bottom: 1.8rem; }
+
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+    .form-group input {
+      width: 100%; padding: 0.75rem 1rem; border: 2px solid #E8E0D5;
+      border-radius: 8px; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s; outline: none; background: var(--white);
+    }
+    .form-group input:focus { border-color: var(--terracota); }
+
+    .rol-selector { display: flex; gap: 0.8rem; margin-bottom: 1.2rem; }
+    .rol-btn { flex: 1; padding: 0.7rem; border: 2px solid #E8E0D5; border-radius: 8px; background: var(--white); cursor: pointer; text-align: center; transition: all 0.2s; }
+    .rol-btn .rol-emoji { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+    .rol-btn .rol-label { font-size: 0.8rem; font-weight: 600; color: var(--text-light); }
+    .rol-btn .rol-hint  { font-size: 0.7rem; color: var(--text-light); display: block; margin-top: 0.2rem; opacity: 0.7; }
+    .rol-btn.selected { border-color: var(--terracota); background: #fdf0ea; }
+    .rol-btn.selected .rol-label { color: var(--terracota); }
+
+    .btn-submit { width: 100%; padding: 0.9rem; background: var(--terracota); color: var(--white); border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+    .btn-submit:hover { background: var(--terracota-dark); }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+    .mensaje { padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem; display: none; line-height: 1.5; }
+    .mensaje.error    { background: #fdf0ea; color: var(--terracota); border: 1px solid #f0c4a8; }
+    .mensaje.exito    { background: #eaf4ee; color: var(--verde); border: 1px solid #a8d5b5; }
+    .mensaje.pendiente { background: #fff8e8; color: #8a6010; border: 1px solid #f0d88a; }
+
+    /* Card estado pendiente post-registro */
+    .pendiente-card { background: #fff8e8; border: 1px solid #f0d88a; border-radius: 12px; padding: 1.5rem; text-align: center; display: none; }
+    .pendiente-card .p-emoji { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; }
+    .pendiente-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #7a5500; margin-bottom: 0.5rem; }
+    .pendiente-card p  { font-size: 0.85rem; color: #8a6010; line-height: 1.6; }
+    .pendiente-card .p-email { font-weight: 700; color: #5a3a00; }
+
+    footer { background: var(--text); color: #aaa; padding: 1.2rem; text-align: center; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-box">
+
+      <div class="tabs">
+        <button class="tab active" onclick="cambiarTab('login')">Iniciar sesión</button>
+        <button class="tab" onclick="cambiarTab('register')">Registrarse</button>
+      </div>
+
+      <div class="form-container">
+
+        <!-- LOGIN -->
+        <div class="form-panel active" id="panel-login">
+          <h2 class="form-title">Bienvenido de vuelta</h2>
+          <p class="form-subtitle">Ingresa tus datos para continuar</p>
+          <div class="mensaje" id="msg-login"></div>
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" id="login-email" placeholder="tu@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="login-password" placeholder="••••••••" />
+          </div>
+          <button class="btn-submit" id="btn-login" onclick="login()">Iniciar sesión</button>
+        </div>
+
+        <!-- REGISTER -->
+        <div class="form-panel" id="panel-register">
+          <h2 class="form-title">Crear cuenta</h2>
+          <p class="form-subtitle">¿Eres cliente o artesano?</p>
+
+          <div class="rol-selector">
+            <div class="rol-btn selected" id="rol-cliente" onclick="seleccionarRol('cliente')">
+              <span class="rol-emoji">🛍️</span>
+              <span class="rol-label">Cliente</span>
+              <span class="rol-hint">Acceso inmediato</span>
+            </div>
+            <div class="rol-btn" id="rol-artesano" onclick="seleccionarRol('artesano')">
+              <span class="rol-emoji">🏺</span>
+              <span class="rol-label">Artesano</span>
+              <span class="rol-hint">Requiere aprobación</span>
+            </div>
+          </div>
+
+          <!-- Card de aviso antes de registrarse como artesano -->
+          <div id="aviso-artesano" style="display:none; background:#fdf0ea; border:1px solid #f0c4a8; border-radius:8px; padding:0.8rem 1rem; margin-bottom:1rem; font-size:0.82rem; color:var(--terracota); line-height:1.5;">
+            ⚠️ Las cuentas de artesano requieren verificación por nuestro equipo antes de publicar productos. Recibirás acceso en 1–2 días hábiles.
+          </div>
+
+          <div class="mensaje" id="msg-register"></div>
+
+          <!-- Card post-registro artesano pendiente -->
+          <div class="pendiente-card" id="pendiente-confirmacion">
+            <span class="p-emoji">⏳</span>
+            <h3>¡Solicitud enviada!</h3>
+            <p>Tu cuenta de artesano está pendiente de verificación. Nuestro equipo revisará tu solicitud y te notificará a <span class="p-email" id="pendiente-email"></span> en 1–2 días hábiles.</p>
+          </div>
+
+          <div id="form-register-fields">
+            <div class="form-group">
+              <label>Nombre completo</label>
+              <input type="text" id="reg-nombre" placeholder="Tu nombre" />
+            </div>
+            <div class="form-group">
+              <label>Correo electrónico</label>
+              <input type="email" id="reg-email" placeholder="tu@email.com" />
+            </div>
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" />
+            </div>
+            <button class="btn-submit" id="btn-register" onclick="register()">Crear cuenta</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2026 ArtesanosMX</footer>
+
+  <script>
+    let rolSeleccionado = 'cliente';
+
+    function cambiarTab(tab) {
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+      });
+      document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+      document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+    }
+
+    function seleccionarRol(rol) {
+      rolSeleccionado = rol;
+      document.getElementById('rol-cliente').classList.toggle('selected', rol === 'cliente');
+      document.getElementById('rol-artesano').classList.toggle('selected', rol === 'artesano');
+      document.getElementById('aviso-artesano').style.display = rol === 'artesano' ? 'block' : 'none';
+    }
+
+    function mostrarMensaje(id, texto, tipo) {
+      const el = document.getElementById(id);
+      el.textContent = texto;
+      el.className = `mensaje ${tipo}`;
+      el.style.display = 'block';
+    }
+
+    async function login() {
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn      = document.getElementById('btn-login');
+
+      if (!email || !password) {
+        mostrarMensaje('msg-login', 'Por favor llena todos los campos', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Ingresando...';
+
+      try {
+        const res  = await fetch('http://localhost:3000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          // Mensaje específico para pendiente o desactivado
+          const tipo = data.estado === 'pendiente' ? 'pendiente' : 'error';
+          mostrarMensaje('msg-login', data.error, tipo);
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+        // Redirigir según rol
+        mostrarMensaje('msg-login', '¡Bienvenido! Redirigiendo...', 'exito');
+        setTimeout(() => {
+          if (data.usuario.rol === 'admin') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = '../index.html';
+          }
+        }, 900);
+
+      } catch(e) {
+        mostrarMensaje('msg-login', 'No se pudo conectar con el servidor', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Iniciar sesión';
+      }
+    }
+
+    async function register() {
+      const nombre   = document.getElementById('reg-nombre').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const btn      = document.getElementById('btn-register');
+
+      if (!nombre || !email || !password) {
+        mostrarMensaje('msg-register', 'Por favor llena todos los campos', 'error');
+        return;
+      }
+      if (password.length < 6) {
+        mostrarMensaje('msg-register', 'La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creando cuenta...';
+
+      try {
+        const res  = await fetch('http://localhost:3000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, email, password, rol: rolSeleccionado }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarMensaje('msg-register', data.error, 'error');
+          return;
+        }
+
+        // Artesano pendiente — mostrar confirmación especial
+        if (data.pendiente) {
+          document.getElementById('form-register-fields').style.display = 'none';
+          document.getElementById('pendiente-email').textContent = email;
+          document.getElementById('pendiente-confirmacion').style.display = 'block';
+          return;
+        }
+
+        // Cliente — guardar sesión y redirigir
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+        mostrarMensaje('msg-register', '¡Cuenta creada! Redirigiendo...', 'exito');
+        setTimeout(() => { window.location.href = '../index.html'; }, 900);
+
+      } catch(e) {
+        mostrarMensaje('msg-register', 'No se pudo conectar con el servidor', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta';
+      }
+    }
+  </script>
+
+</body>
+</html>

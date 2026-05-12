@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pago — ArtesanosMX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7;     --arena-dark: #EDD9B0;
+      --verde: #3A6B4A;     --verde-light: #4E8F63;
+      --text: #2C2C2C;      --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── NAV ── */
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
+    .nav-logo span { color: var(--verde); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-btn-carrito { background: var(--terracota); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .nav-btn-carrito:hover { background: var(--terracota-dark); }
+    .nav-divider { width: 1px; height: 20px; background: #E8E0D5; }
+    .nav-btn-cerrar { background: none; border: 1px solid #E8E0D5; color: var(--text-light); padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn-cerrar:hover { border-color: var(--terracota); color: var(--terracota); }
+    .nav-usuario-chip { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; background: var(--arena); border: 1px solid var(--arena-dark); padding: 0.4rem 0.9rem; border-radius: 20px; transition: all 0.2s; }
+    .nav-usuario-chip:hover { border-color: var(--verde); background: #e8f0eb; }
+    .nav-usuario-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav-usuario-chip .nombre { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .nav-btn-login { background: var(--verde); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn-login:hover { background: var(--verde-light); }
+
+    /* ── STEPPER ── */
+    .stepper { background: var(--white); border-bottom: 1px solid #ede5da; padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: center; gap: 0.8rem; }
+    .step { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; text-decoration: none; }
+    .step-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; transition: all 0.2s; }
+    .step-num.done    { background: var(--verde); color: var(--white); }
+    .step-num.active  { background: var(--terracota); color: var(--white); }
+    .step-num.pending { background: #ddd; color: var(--text-light); }
+    .step-label { font-size: 0.85rem; font-weight: 500; }
+    .step-label.done   { color: var(--verde); font-weight: 600; }
+    .step-label.active { color: var(--terracota); font-weight: 600; }
+    .step-label.pending { color: var(--text-light); }
+    .step-line { width: 60px; height: 2px; background: #ddd; border-radius: 2px; }
+    .step-line.done { background: var(--verde); }
+
+    /* ── LAYOUT ── */
+    .page-container { max-width: 1100px; margin: 2.5rem auto; padding: 0 2rem; display: grid; grid-template-columns: 1fr 360px; gap: 2rem; flex: 1; width: 100%; }
+
+    /* ── SECCIONES FORMULARIO ── */
+    .seccion { background: var(--white); border: 1px solid #ede5da; border-radius: 16px; padding: 1.8rem; margin-bottom: 1.2rem; }
+    .seccion-titulo { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.4rem; }
+    .seccion-num { width: 28px; height: 28px; border-radius: 50%; background: var(--terracota); color: var(--white); font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .seccion-titulo h2 { font-size: 1rem; font-weight: 700; }
+
+    /* Grid form */
+    .form-grid { display: grid; gap: 1rem; }
+    .col-2 { grid-template-columns: 1fr 1fr; }
+    .col-3-1 { grid-template-columns: 3fr 1fr; }
+    .col-full { grid-column: 1 / -1; }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .form-group label .req { color: var(--terracota); }
+    .form-group input, .form-group select {
+      padding: 0.65rem 0.9rem; border: 1.5px solid #ddd; border-radius: 8px;
+      font-size: 0.9rem; font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color 0.2s; background: var(--white); color: var(--text);
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--terracota); }
+    .form-group input::placeholder { color: #bbb; }
+
+    /* Opciones radio */
+    .radio-opciones { display: flex; flex-direction: column; gap: 0.6rem; }
+    .radio-opcion { display: flex; align-items: center; gap: 0.9rem; border: 1.5px solid #e0d8ce; border-radius: 10px; padding: 0.85rem 1rem; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: var(--white); }
+    .radio-opcion:has(input:checked) { border-color: var(--terracota); background: #fdf5f0; }
+    .radio-opcion input[type="radio"] { accent-color: var(--terracota); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+    .radio-opcion-info { flex: 1; }
+    .radio-opcion-info strong { font-size: 0.9rem; font-weight: 600; display: block; }
+    .radio-opcion-info span { font-size: 0.78rem; color: var(--text-light); }
+    .radio-precio { font-weight: 700; font-size: 0.9rem; color: var(--terracota); flex-shrink: 0; }
+    .radio-precio.gratis { color: var(--verde); }
+
+    /* Campos tarjeta */
+    .tarjeta-campos { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ede5da; display: none; }
+    .tarjeta-campos.visible { display: block; }
+
+    /* ── RESUMEN LATERAL ── */
+    .resumen-card { background: var(--white); border: 1px solid #ede5da; border-radius: 16px; padding: 1.5rem; position: sticky; top: 5.5rem; }
+    .resumen-card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.4rem; }
+
+    .resumen-items { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem; }
+    .resumen-item { display: flex; align-items: center; gap: 0.8rem; }
+    .resumen-item-img { width: 48px; height: 48px; border-radius: 8px; background: var(--arena-dark); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .resumen-item-info { flex: 1; }
+    .resumen-item-info strong { font-size: 0.85rem; font-weight: 600; display: block; }
+    .resumen-item-info span { font-size: 0.78rem; color: var(--text-light); }
+    .resumen-item-precio { font-weight: 700; font-size: 0.88rem; color: var(--terracota); flex-shrink: 0; }
+
+    .divider { border: none; border-top: 1px solid #ede5da; margin: 1rem 0; }
+    .divider-total { border: none; border-top: 2px solid var(--terracota); margin: 0.8rem 0; }
+
+    .desglose { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; }
+    .desglose-row { display: flex; justify-content: space-between; }
+    .desglose-row .label { color: var(--text-light); }
+    .descuento-val { color: var(--verde); }
+
+    .total-row { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1rem; padding-top: 0.6rem; }
+    .total-valor { font-size: 1.3rem; color: var(--terracota); }
+
+    .btn-pagar { width: 100%; padding: 0.9rem; background: var(--terracota); color: var(--white); border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 1.2rem; }
+    .btn-pagar:hover { background: var(--terracota-dark); }
+    .ssl-note { text-align: center; font-size: 0.78rem; color: var(--text-light); margin-top: 0.6rem; }
+
+    .garantias { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem; color: var(--text-light); }
+    .garantia-row { display: flex; align-items: center; gap: 0.5rem; }
+
+    /* ── CTA ── */
+    .cta-soporte { background: var(--verde); color: var(--white); text-align: center; padding: 3rem 2rem; margin-top: auto; }
+    .cta-soporte h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .cta-soporte p { opacity: 0.8; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .btn-soporte { background: var(--white); color: var(--verde); border: none; padding: 0.75rem 2.5rem; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s; }
+    .btn-soporte:hover { background: var(--arena); }
+
+    footer { background: var(--text); color: #aaa; padding: 1.5rem; text-align: center; font-size: 0.85rem; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--verde); color: var(--white); padding: 0.8rem 1.4rem; border-radius: 10px; font-size: 0.88rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 860px) {
+      .page-container { grid-template-columns: 1fr; padding: 0 1.2rem; }
+      .resumen-card { position: static; }
+      .form-grid.col-2 { grid-template-columns: 1fr; }
+      .form-grid.col-3-1 { grid-template-columns: 1fr; }
+      .stepper { gap: 0.4rem; padding: 0.8rem 1rem; }
+      .step-line { width: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="artesanos.html">Artesanos</a></li>
+      <li>
+        <button class="nav-btn-carrito" onclick="window.location.href='carrito.html'">
+          🛒 Carrito <span id="carrito-count">0</span>
+        </button>
+      </li>
+      <li class="nav-divider"></li>
+      <li id="nav-sesion"></li>
+      <li id="nav-usuario-chip"></li>
+    </ul>
+  </nav>
+
+  <!-- STEPPER -->
+  <div class="stepper">
+    <a href="carrito.html" class="step">
+      <div class="step-num done">✓</div>
+      <span class="step-label done">Carrito</span>
+    </a>
+    <div class="step-line done"></div>
+    <a href="pago.html" class="step">
+      <div class="step-num active">2</div>
+      <span class="step-label active">Envío</span>
+    </a>
+    <div class="step-line"></div>
+    <span class="step">
+      <div class="step-num pending">3</div>
+      <span class="step-label pending">Pago</span>
+    </span>
+    <div class="step-line"></div>
+    <span class="step">
+      <div class="step-num pending">4</div>
+      <span class="step-label pending">Confirmación</span>
+    </span>
+  </div>
+
+  <!-- MAIN -->
+  <div class="page-container">
+
+    <!-- FORMULARIOS -->
+    <div>
+
+      <!-- 1. Datos de envío -->
+      <div class="seccion">
+        <div class="seccion-titulo">
+          <div class="seccion-num">1</div>
+          <h2>Datos de Envío</h2>
+        </div>
+        <div class="form-grid col-2">
+          <div class="form-group">
+            <label>Nombre <span class="req">*</span></label>
+            <input type="text" id="f-nombre" placeholder="Ej. María" />
+          </div>
+          <div class="form-group">
+            <label>Apellido <span class="req">*</span></label>
+            <input type="text" id="f-apellido" placeholder="Ej. López" />
+          </div>
+          <div class="form-group col-full">
+            <label>Correo electrónico <span class="req">*</span></label>
+            <input type="email" id="f-email" placeholder="correo@ejemplo.com" />
+          </div>
+          <div class="form-group" style="grid-column: span 1;">
+            <label>Dirección <span class="req">*</span></label>
+            <input type="text" id="f-direccion" placeholder="Calle, número, colonia" />
+          </div>
+          <div class="form-group">
+            <label>Código Postal <span class="req">*</span></label>
+            <input type="text" id="f-cp" placeholder="00000" maxlength="5" />
+          </div>
+          <div class="form-group">
+            <label>Ciudad <span class="req">*</span></label>
+            <input type="text" id="f-ciudad" placeholder="Ej. Oaxaca de Juárez" />
+          </div>
+          <div class="form-group">
+            <label>Estado <span class="req">*</span></label>
+            <select id="f-estado">
+              <option value="">— Seleccionar —</option>
+              <option>Oaxaca</option>
+              <option>Ciudad de México</option>
+              <option>Jalisco</option>
+              <option>Nuevo León</option>
+              <option>Puebla</option>
+              <option>Veracruz</option>
+              <option>Guerrero</option>
+              <option>Chiapas</option>
+            </select>
+          </div>
+          <div class="form-group col-full">
+            <label>Teléfono de contacto</label>
+            <input type="tel" id="f-tel" placeholder="(000) 000-0000" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Método de envío -->
+      <div class="seccion">
+        <div class="seccion-titulo">
+          <div class="seccion-num">2</div>
+          <h2>Método de Envío</h2>
+        </div>
+        <div class="radio-opciones">
+          <label class="radio-opcion">
+            <input type="radio" name="envio" value="99" checked onchange="actualizarEnvio(this)">
+            <div class="radio-opcion-info">
+              <strong>Envío Estándar</strong>
+              <span>5–7 días hábiles</span>
+            </div>
+            <span class="radio-precio">$99 MXN</span>
+          </label>
+          <label class="radio-opcion">
+            <input type="radio" name="envio" value="199" onchange="actualizarEnvio(this)">
+            <div class="radio-opcion-info">
+              <strong>Envío Express</strong>
+              <span>2–3 días hábiles</span>
+            </div>
+            <span class="radio-precio">$199 MXN</span>
+          </label>
+          <label class="radio-opcion">
+            <input type="radio" name="envio" value="0" onchange="actualizarEnvio(this)">
+            <div class="radio-opcion-info">
+              <strong>Envío Gratis</strong>
+              <span>En compras mayores a $2,000 MXN · 7–10 días</span>
+            </div>
+            <span class="radio-precio gratis">$0 MXN</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. Método de pago -->
+      <div class="seccion">
+        <div class="seccion-titulo">
+          <div class="seccion-num">3</div>
+          <h2>Método de Pago</h2>
+        </div>
+        <div class="radio-opciones">
+          <label class="radio-opcion">
+            <input type="radio" name="pago" value="tarjeta" checked onchange="toggleTarjeta(this)">
+            <div class="radio-opcion-info"><strong>💳 Tarjeta de crédito / débito</strong></div>
+          </label>
+          <label class="radio-opcion">
+            <input type="radio" name="pago" value="spei" onchange="toggleTarjeta(this)">
+            <div class="radio-opcion-info"><strong>🏦 Transferencia bancaria (SPEI)</strong></div>
+          </label>
+          <label class="radio-opcion">
+            <input type="radio" name="pago" value="oxxo" onchange="toggleTarjeta(this)">
+            <div class="radio-opcion-info"><strong>🏪 Pago en OXXO</strong></div>
+          </label>
+          <label class="radio-opcion">
+            <input type="radio" name="pago" value="paypal" onchange="toggleTarjeta(this)">
+            <div class="radio-opcion-info"><strong>🅿️ PayPal</strong></div>
+          </label>
+        </div>
+
+        <!-- Campos tarjeta -->
+        <div class="tarjeta-campos visible" id="campos-tarjeta">
+          <div class="form-grid col-full" style="display:grid; gap:1rem;">
+            <div class="form-group">
+              <label>Número de tarjeta <span class="req">*</span></label>
+              <input type="text" id="f-tarjeta" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatTarjeta(this)" />
+            </div>
+            <div class="form-group">
+              <label>Nombre en la tarjeta <span class="req">*</span></label>
+              <input type="text" id="f-nombre-tarjeta" placeholder="Como aparece en la tarjeta" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div class="form-group">
+                <label>Vencimiento <span class="req">*</span></label>
+                <input type="text" id="f-venc" placeholder="MM/AA" maxlength="5" oninput="formatVenc(this)" />
+              </div>
+              <div class="form-group">
+                <label>CVV <span class="req">*</span></label>
+                <input type="text" id="f-cvv" placeholder="000" maxlength="4" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RESUMEN -->
+    <aside>
+      <div class="resumen-card">
+        <h2>🛒 Resumen del Pedido</h2>
+
+        <div class="resumen-items" id="resumen-items">
+          <!-- se llena desde localStorage -->
+        </div>
+
+        <hr class="divider">
+
+        <div class="desglose">
+          <div class="desglose-row">
+            <span class="label">Subtotal</span>
+            <span id="r-subtotal">$0 MXN</span>
+          </div>
+          <div class="desglose-row">
+            <span class="label">Envío</span>
+            <span id="r-envio">$99 MXN</span>
+          </div>
+          <div class="desglose-row">
+            <span class="label">Descuento</span>
+            <span class="descuento-val" id="r-descuento">— $0 MXN</span>
+          </div>
+          <div class="desglose-row">
+            <span class="label">IVA (16%)</span>
+            <span id="r-iva">$0 MXN</span>
+          </div>
+        </div>
+
+        <hr class="divider-total">
+
+        <div class="total-row">
+          <span>Total</span>
+          <span class="total-valor" id="r-total">$0 MXN</span>
+        </div>
+
+        <button class="btn-pagar" onclick="confirmarPago()">Confirmar y Pagar</button>
+        <p class="ssl-note">🔒 Pago seguro con cifrado SSL. Tus datos están protegidos.</p>
+
+        <hr class="divider">
+
+        <div class="garantias">
+          <div class="garantia-row">✅ Comercio justo — el artesano recibe el 100%</div>
+          <div class="garantia-row">🔄 Devoluciones en 30 días</div>
+          <div class="garantia-row">📦 Empaque artesanal y sustentable</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-soporte">
+    <h2>¿Tienes dudas sobre tu pedido?</h2>
+    <p>Nuestro equipo está disponible para ayudarte en todo momento.</p>
+    <a href="mailto:soporte@artesanosmx.com" class="btn-soporte">Contactar soporte</a>
+  </div>
+
+  <footer>© 2026 ArtesanosMX — Hecho con ❤️ en México</footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const emojis = { 'Textiles':'🧵','Cerámica':'🏺','Joyería':'💎','Mezcal':'🥃','Alimentos':'🌶️','Madera':'🪆' };
+    const emojiDefault = '🎨';
+    let costoEnvio = 99;
+    let descuentoGuardado = 0;
+
+    // ── NAV ──
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const navSesion = document.getElementById('nav-sesion');
+    const navChip   = document.getElementById('nav-usuario-chip');
+
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    document.getElementById('carrito-count').textContent = carrito.reduce((a, i) => a + i.cantidad, 0);
+
+    if (usuario) {
+      const inicial      = usuario.nombre.charAt(0).toUpperCase();
+      const primerNombre = usuario.nombre.split(' ')[0];
+      navChip.innerHTML  = `
+        <a href="cuenta.html" class="nav-usuario-chip" title="Mi cuenta">
+          <div class="avatar">${inicial}</div>
+          <span class="nombre">${primerNombre}</span>
+        </a>`;
+      navSesion.innerHTML = `<button class="nav-btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>`;
+
+      // Prellenar email si hay sesión
+      const emailInput = document.getElementById('f-email');
+      if (emailInput && usuario.email) emailInput.value = usuario.email;
+
+      // Prellenar nombre
+      const partes = usuario.nombre.split(' ');
+      if (partes[0]) document.getElementById('f-nombre').value = partes[0];
+      if (partes[1]) document.getElementById('f-apellido').value = partes[1];
+    } else {
+      navSesion.innerHTML = `<a href="auth.html" class="nav-btn-login">Iniciar sesión</a>`;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '../index.html';
+    }
+
+    // ── Toast ──
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function formatMXN(n) {
+      return '$' + Math.round(n).toLocaleString('es-MX') + ' MXN';
+    }
+
+    // ── Render resumen desde localStorage ──
+    function renderResumen() {
+      const items   = document.getElementById('resumen-items');
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
+      if (carrito.length === 0) {
+        items.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;">No hay productos en tu carrito.</p>';
+        recalcular(0);
+        return;
+      }
+
+      items.innerHTML = carrito.map(item => `
+        <div class="resumen-item">
+          <div class="resumen-item-img">${emojis[item.categoria] || emojiDefault}</div>
+          <div class="resumen-item-info">
+            <strong>${item.nombre}</strong>
+            <span>×${item.cantidad}</span>
+          </div>
+          <span class="resumen-item-precio">${formatMXN(item.precio * item.cantidad)}</span>
+        </div>
+      `).join('');
+
+      const subtotal = carrito.reduce((a, i) => a + i.precio * i.cantidad, 0);
+      recalcular(subtotal);
+    }
+
+    function recalcular(subtotal) {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const sub     = subtotal ?? carrito.reduce((a, i) => a + i.precio * i.cantidad, 0);
+      const base    = sub - descuentoGuardado + costoEnvio;
+      const iva     = Math.round(base * 0.16);
+      const total   = base + iva;
+
+      document.getElementById('r-subtotal').textContent  = formatMXN(sub);
+      document.getElementById('r-envio').textContent     = formatMXN(costoEnvio);
+      document.getElementById('r-descuento').textContent = '— ' + formatMXN(descuentoGuardado);
+      document.getElementById('r-iva').textContent       = formatMXN(iva);
+      document.getElementById('r-total').textContent     = formatMXN(total);
+    }
+
+    // ── Cambiar envío ──
+    function actualizarEnvio(radio) {
+      costoEnvio = parseInt(radio.value);
+      recalcular();
+    }
+
+    // ── Mostrar/ocultar campos tarjeta ──
+    function toggleTarjeta(radio) {
+      const campos = document.getElementById('campos-tarjeta');
+      campos.classList.toggle('visible', radio.value === 'tarjeta');
+    }
+
+    // ── Formatear número tarjeta ──
+    function formatTarjeta(input) {
+      let v = input.value.replace(/\D/g, '').substring(0, 16);
+      input.value = v.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    // ── Formatear vencimiento ──
+    function formatVenc(input) {
+      let v = input.value.replace(/\D/g, '').substring(0, 4);
+      if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2);
+      input.value = v;
+    }
+
+    // ── Validar y confirmar ──
+    function confirmarPago() {
+      const campos = [
+        { id: 'f-nombre',    label: 'Nombre' },
+        { id: 'f-apellido',  label: 'Apellido' },
+        { id: 'f-email',     label: 'Correo electrónico' },
+        { id: 'f-direccion', label: 'Dirección' },
+        { id: 'f-cp',        label: 'Código Postal' },
+        { id: 'f-ciudad',    label: 'Ciudad' },
+        { id: 'f-estado',    label: 'Estado' },
+      ];
+
+      for (const c of campos) {
+        if (!document.getElementById(c.id).value.trim()) {
+          showToast(`⚠️ El campo "${c.label}" es requerido`);
+          document.getElementById(c.id).focus();
+          return;
+        }
+      }
+
+      const metodoPago = document.querySelector('input[name="pago"]:checked').value;
+      if (metodoPago === 'tarjeta') {
+        const tarjeta = document.getElementById('f-tarjeta').value.replace(/\s/g,'');
+        if (tarjeta.length < 16) { showToast('⚠️ Ingresa un número de tarjeta válido'); return; }
+        if (!document.getElementById('f-nombre-tarjeta').value.trim()) { showToast('⚠️ Ingresa el nombre en la tarjeta'); return; }
+        if (!document.getElementById('f-venc').value.trim()) { showToast('⚠️ Ingresa la fecha de vencimiento'); return; }
+        if (!document.getElementById('f-cvv').value.trim()) { showToast('⚠️ Ingresa el CVV'); return; }
+      }
+
+      // Guardar datos del pedido para confirmación
+      const carritoActual = JSON.parse(localStorage.getItem('carrito')) || [];
+      const subtotal = carritoActual.reduce((a, i) => a + i.precio * i.cantidad, 0);
+      const envioSeleccionado = document.querySelector('input[name="envio"]:checked').value;
+
+      sessionStorage.setItem('carrito_confirmado', JSON.stringify(carritoActual));
+      sessionStorage.setItem('pedido_confirmado', JSON.stringify({
+        nombre:    document.getElementById('f-nombre').value.trim(),
+        apellido:  document.getElementById('f-apellido').value.trim(),
+        email:     document.getElementById('f-email').value.trim(),
+        direccion: document.getElementById('f-direccion').value.trim(),
+        cp:        document.getElementById('f-cp').value.trim(),
+        ciudad:    document.getElementById('f-ciudad').value.trim(),
+        estado:    document.getElementById('f-estado').value,
+        envio:     envioSeleccionado,
+        subtotal,
+        descuento: 0,
+      }));
+
+      // Limpiar carrito y redirigir a confirmación
+      localStorage.removeItem('carrito');
+      showToast('✅ ¡Pago procesado! Redirigiendo...');
+      setTimeout(() => window.location.href = 'confirmacion.html', 1500);
+    }
+
+    // ── Init ──
+    renderResumen();
+  </script>
+
+</body>
+</html>

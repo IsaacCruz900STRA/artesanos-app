@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedido Confirmado — ArtesanosMX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracota: #C0622A; --terracota-dark: #9E4E20;
+      --arena: #F5ECD7;     --arena-dark: #EDD9B0;
+      --verde: #3A6B4A;     --verde-light: #4E8F63;
+      --text: #2C2C2C;      --text-light: #6B6B6B; --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--arena); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── NAV ── */
+    nav { background: var(--white); padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--terracota); text-decoration: none; }
+    .nav-logo span { color: var(--verde); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-btn-carrito { background: var(--terracota); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .nav-btn-carrito:hover { background: var(--terracota-dark); }
+    .nav-divider { width: 1px; height: 20px; background: #E8E0D5; }
+    .nav-btn-cerrar { background: none; border: 1px solid #E8E0D5; color: var(--text-light); padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn-cerrar:hover { border-color: var(--terracota); color: var(--terracota); }
+    .nav-usuario-chip { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; background: var(--arena); border: 1px solid var(--arena-dark); padding: 0.4rem 0.9rem; border-radius: 20px; transition: all 0.2s; }
+    .nav-usuario-chip:hover { border-color: var(--verde); background: #e8f0eb; }
+    .nav-usuario-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--verde); color: var(--white); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav-usuario-chip .nombre { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .nav-btn-login { background: var(--verde); color: var(--white); border: none; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn-login:hover { background: var(--verde-light); }
+
+    /* ── STEPPER ── */
+    .stepper { background: var(--white); border-bottom: 1px solid #ede5da; padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: center; gap: 0.8rem; }
+    .step { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+    .step-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+    .step-num.done   { background: var(--verde); color: var(--white); }
+    .step-num.active { background: var(--terracota); color: var(--white); }
+    .step-label { font-size: 0.85rem; font-weight: 500; }
+    .step-label.done   { color: var(--verde); font-weight: 600; }
+    .step-label.active { color: var(--terracota); font-weight: 600; }
+    .step-line { width: 60px; height: 2px; background: var(--verde); border-radius: 2px; }
+
+    /* ── HERO CONFIRMACIÓN ── */
+    .confirmacion-hero { text-align: center; padding: 3.5rem 2rem 2rem; }
+    .check-circle {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: var(--verde); margin: 0 auto 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem;
+      box-shadow: 0 0 0 12px rgba(58,107,74,0.12), 0 0 0 24px rgba(58,107,74,0.06);
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .confirmacion-hero h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 0.5rem; animation: fadeUp 0.5s 0.2s both; }
+    .confirmacion-hero p  { color: var(--text-light); font-size: 1rem; animation: fadeUp 0.5s 0.3s both; }
+    .num-pedido { display: inline-block; background: var(--arena-dark); border-radius: 8px; padding: 0.4rem 1rem; font-size: 0.88rem; font-weight: 600; color: var(--terracota); margin-top: 0.8rem; animation: fadeUp 0.5s 0.4s both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── LAYOUT PRINCIPAL ── */
+    .page-container { max-width: 960px; margin: 2rem auto 3rem; padding: 0 2rem; display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; width: 100%; }
+
+    /* ── TARJETAS ── */
+    .card { background: var(--white); border: 1px solid #ede5da; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.2rem; animation: fadeUp 0.5s 0.5s both; }
+    .card:nth-child(2) { animation-delay: 0.6s; }
+    .card:nth-child(3) { animation-delay: 0.7s; }
+    .card-titulo { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-light); margin-bottom: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+    /* Detalle envío */
+    .envio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .envio-campo h4 { font-size: 0.78rem; font-weight: 600; color: var(--text-light); margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .envio-campo p  { font-size: 0.92rem; font-weight: 500; }
+
+    /* Timeline de estado */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline-item { display: flex; gap: 1rem; align-items: flex-start; position: relative; }
+    .timeline-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 32px; width: 2px; height: calc(100% + 0px); background: #ede5da; }
+    .timeline-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; z-index: 1; margin-bottom: 1.5rem; }
+    .timeline-dot.done    { background: var(--verde); color: var(--white); }
+    .timeline-dot.current { background: var(--terracota); color: var(--white); }
+    .timeline-dot.pending { background: #e8e0d8; color: var(--text-light); }
+    .timeline-info h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .timeline-info p  { font-size: 0.8rem; color: var(--text-light); }
+
+    /* Productos */
+    .productos-lista { display: flex; flex-direction: column; gap: 0.8rem; }
+    .prod-item { display: flex; align-items: center; gap: 0.9rem; padding: 0.7rem 0; border-bottom: 1px solid #f5ede0; }
+    .prod-item:last-child { border-bottom: none; }
+    .prod-emoji { width: 44px; height: 44px; background: var(--arena-dark); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+    .prod-info { flex: 1; }
+    .prod-info strong { font-size: 0.88rem; font-weight: 600; display: block; }
+    .prod-info span   { font-size: 0.78rem; color: var(--text-light); }
+    .prod-precio { font-weight: 700; font-size: 0.9rem; color: var(--terracota); }
+
+    /* ── RESUMEN LATERAL ── */
+    .resumen-card { background: var(--white); border: 1px solid #ede5da; border-radius: 16px; padding: 1.5rem; position: sticky; top: 5.5rem; animation: fadeUp 0.5s 0.6s both; }
+    .resumen-card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.2rem; }
+    .desglose { display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.88rem; margin-bottom: 0.8rem; }
+    .desglose-row { display: flex; justify-content: space-between; }
+    .desglose-row .label { color: var(--text-light); }
+    .divider { border: none; border-top: 1px solid #ede5da; margin: 0.8rem 0; }
+    .divider-total { border: none; border-top: 2px solid var(--terracota); margin: 0.8rem 0; }
+    .total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; padding-top: 0.4rem; }
+    .total-valor { font-size: 1.2rem; color: var(--terracota); }
+
+    /* Acciones */
+    .acciones { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1.4rem; }
+    .btn-primary { background: var(--terracota); color: var(--white); border: none; padding: 0.75rem; border-radius: 8px; font-size: 0.92rem; font-weight: 700; cursor: pointer; text-decoration: none; display: block; text-align: center; transition: background 0.2s; }
+    .btn-primary:hover { background: var(--terracota-dark); }
+    .btn-secondary { background: transparent; color: var(--verde); border: 1.5px solid #c5dace; padding: 0.7rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-decoration: none; display: block; text-align: center; transition: all 0.2s; }
+    .btn-secondary:hover { background: var(--verde); color: var(--white); border-color: var(--verde); }
+
+    /* Nota email */
+    .nota-email { background: #eaf4ee; border: 1px solid #c5dace; border-radius: 10px; padding: 0.9rem 1rem; font-size: 0.82rem; color: var(--verde); display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1rem; }
+
+    footer { background: var(--text); color: #aaa; padding: 1.5rem; text-align: center; font-size: 0.85rem; margin-top: auto; }
+
+    @media (max-width: 760px) {
+      .page-container { grid-template-columns: 1fr; padding: 0 1.2rem; }
+      .resumen-card { position: static; }
+      .envio-grid { grid-template-columns: 1fr; }
+      .stepper { gap: 0.4rem; }
+      .step-line { width: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="../index.html" class="nav-logo">Artesanos<span>MX</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="artesanos.html">Artesanos</a></li>
+      <li>
+        <button class="nav-btn-carrito" onclick="window.location.href='carrito.html'">
+          🛒 Carrito <span id="carrito-count">0</span>
+        </button>
+      </li>
+      <li class="nav-divider"></li>
+      <li id="nav-sesion"></li>
+      <li id="nav-usuario-chip"></li>
+    </ul>
+  </nav>
+
+  <!-- STEPPER — todos done -->
+  <div class="stepper">
+    <a href="carrito.html" class="step">
+      <div class="step-num done">✓</div>
+      <span class="step-label done">Carrito</span>
+    </a>
+    <div class="step-line"></div>
+    <a href="pago.html" class="step">
+      <div class="step-num done">✓</div>
+      <span class="step-label done">Envío</span>
+    </a>
+    <div class="step-line"></div>
+    <span class="step">
+      <div class="step-num done">✓</div>
+      <span class="step-label done">Pago</span>
+    </span>
+    <div class="step-line"></div>
+    <span class="step">
+      <div class="step-num active">4</div>
+      <span class="step-label active">Confirmación</span>
+    </span>
+  </div>
+
+  <!-- HERO -->
+  <div class="confirmacion-hero">
+    <div class="check-circle">✓</div>
+    <h1>¡Pedido confirmado!</h1>
+    <p>Gracias por tu compra. Tu pedido está en camino.</p>
+    <div class="num-pedido" id="num-pedido">#AMX-000000</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="page-container">
+
+    <div>
+
+      <!-- Datos de envío -->
+      <div class="card">
+        <div class="card-titulo">📦 Detalles de Envío</div>
+        <div class="envio-grid" id="envio-detalle">
+          <div class="envio-campo"><h4>Destinatario</h4><p id="d-nombre">—</p></div>
+          <div class="envio-campo"><h4>Correo</h4><p id="d-email">—</p></div>
+          <div class="envio-campo"><h4>Dirección</h4><p id="d-direccion">—</p></div>
+          <div class="envio-campo"><h4>Ciudad / Estado</h4><p id="d-ciudad">—</p></div>
+          <div class="envio-campo"><h4>Código Postal</h4><p id="d-cp">—</p></div>
+          <div class="envio-campo"><h4>Método de envío</h4><p id="d-metodo-envio">Envío Estándar</p></div>
+          <div class="envio-campo"><h4>Tiempo estimado</h4><p id="d-tiempo">5–7 días hábiles</p></div>
+          <div class="envio-campo"><h4>Entrega estimada</h4><p id="d-fecha">—</p></div>
+        </div>
+      </div>
+
+      <!-- Estado del pedido -->
+      <div class="card">
+        <div class="card-titulo">🚚 Estado del Pedido</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot done">✓</div>
+            <div class="timeline-info">
+              <h4>Pedido recibido</h4>
+              <p id="fecha-pedido">Hoy</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot current">⋯</div>
+            <div class="timeline-info">
+              <h4>Preparando tu pedido</h4>
+              <p>El artesano está empacando tus productos</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot pending">○</div>
+            <div class="timeline-info">
+              <h4>En camino</h4>
+              <p>Tu pedido será recolectado en breve</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot pending">○</div>
+            <div class="timeline-info">
+              <h4>Entregado</h4>
+              <p id="d-fecha-entrega">Estimado en 5–7 días hábiles</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productos -->
+      <div class="card">
+        <div class="card-titulo">🏺 Productos del Pedido</div>
+        <div class="productos-lista" id="productos-confirmacion">
+          <!-- se llena desde sessionStorage -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RESUMEN LATERAL -->
+    <aside>
+      <div class="resumen-card">
+        <h2>📋 Resumen del Pago</h2>
+
+        <div class="desglose">
+          <div class="desglose-row"><span class="label">Subtotal</span><span id="r-subtotal">—</span></div>
+          <div class="desglose-row"><span class="label">Envío</span><span id="r-envio">—</span></div>
+          <div class="desglose-row"><span class="label">Descuento</span><span style="color:var(--verde)" id="r-descuento">—</span></div>
+          <div class="desglose-row"><span class="label">IVA (16%)</span><span id="r-iva">—</span></div>
+        </div>
+
+        <hr class="divider-total">
+
+        <div class="total-row">
+          <span>Total pagado</span>
+          <span class="total-valor" id="r-total">—</span>
+        </div>
+
+        <div class="nota-email">
+          📧 Se enviará un resumen a tu correo electrónico.
+        </div>
+
+        <div class="acciones">
+          <a href="catalogo.html" class="btn-primary">Seguir comprando</a>
+          <a href="cuenta.html" class="btn-secondary">Ver mis pedidos</a>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer>© 2026 ArtesanosMX — Hecho con ❤️ en México</footer>
+
+  <script>
+    const emojis = { 'Textiles':'🧵','Cerámica':'🏺','Joyería':'💎','Mezcal':'🥃','Alimentos':'🌶️','Madera':'🪆' };
+    const emojiDefault = '🎨';
+
+    // ── NAV ──
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    document.getElementById('carrito-count').textContent = 0; // carrito ya fue limpiado
+
+    const navSesion = document.getElementById('nav-sesion');
+    const navChip   = document.getElementById('nav-usuario-chip');
+
+    if (usuario) {
+      const inicial = usuario.nombre.charAt(0).toUpperCase();
+      const primerNombre = usuario.nombre.split(' ')[0];
+      navChip.innerHTML = `
+        <a href="cuenta.html" class="nav-usuario-chip" title="Mi cuenta">
+          <div class="avatar">${inicial}</div>
+          <span class="nombre">${primerNombre}</span>
+        </a>`;
+      navSesion.innerHTML = `<button class="nav-btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>`;
+    } else {
+      navSesion.innerHTML = `<a href="auth.html" class="nav-btn-login">Iniciar sesión</a>`;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '../index.html';
+    }
+
+    function formatMXN(n) {
+      return '$' + Math.round(n).toLocaleString('es-MX') + ' MXN';
+    }
+
+    // ── Número de pedido aleatorio ──
+    const numPedido = 'AMX-' + Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('num-pedido').textContent = '#' + numPedido;
+
+    // ── Fecha actual y estimada ──
+    const hoy = new Date();
+    const opcFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('fecha-pedido').textContent =
+      hoy.toLocaleDateString('es-MX', opcFecha);
+
+    // Fecha estimada +7 días hábiles
+    const fechaEntrega = new Date(hoy);
+    fechaEntrega.setDate(fechaEntrega.getDate() + 7);
+    document.getElementById('d-fecha').textContent =
+      fechaEntrega.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+    document.getElementById('d-fecha-entrega').textContent =
+      'Estimado el ' + fechaEntrega.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
+
+    // ── Recuperar datos del pedido desde sessionStorage ──
+    const pedido = JSON.parse(sessionStorage.getItem('pedido_confirmado')) || null;
+    const carritoGuardado = JSON.parse(sessionStorage.getItem('carrito_confirmado')) || [];
+
+    if (pedido) {
+      document.getElementById('d-nombre').textContent    = (pedido.nombre + ' ' + pedido.apellido).trim() || '—';
+      document.getElementById('d-email').textContent     = pedido.email || '—';
+      document.getElementById('d-direccion').textContent = pedido.direccion || '—';
+      document.getElementById('d-ciudad').textContent    = [pedido.ciudad, pedido.estado].filter(Boolean).join(', ') || '—';
+      document.getElementById('d-cp').textContent        = pedido.cp || '—';
+
+      const metodos = { '99': 'Envío Estándar', '199': 'Envío Express', '0': 'Envío Gratis' };
+      const tiempos = { '99': '5–7 días hábiles', '199': '2–3 días hábiles', '0': '7–10 días' };
+      const envioVal = pedido.envio || '99';
+      document.getElementById('d-metodo-envio').textContent = metodos[envioVal] || 'Envío Estándar';
+      document.getElementById('d-tiempo').textContent       = tiempos[envioVal] || '5–7 días hábiles';
+
+      // Resumen financiero
+      const subtotal  = pedido.subtotal || 0;
+      const envio     = parseInt(envioVal);
+      const descuento = pedido.descuento || 0;
+      const base      = subtotal - descuento + envio;
+      const iva       = Math.round(base * 0.16);
+      const total     = base + iva;
+
+      document.getElementById('r-subtotal').textContent  = formatMXN(subtotal);
+      document.getElementById('r-envio').textContent     = formatMXN(envio);
+      document.getElementById('r-descuento').textContent = '— ' + formatMXN(descuento);
+      document.getElementById('r-iva').textContent       = formatMXN(iva);
+      document.getElementById('r-total').textContent     = formatMXN(total);
+    } else {
+      // Si no hay datos guardados (acceso directo), mostrar fallback
+      ['r-subtotal','r-envio','r-descuento','r-iva','r-total'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+      });
+      if (usuario) {
+        document.getElementById('d-nombre').textContent = usuario.nombre;
+        document.getElementById('d-email').textContent  = usuario.email;
+      }
+    }
+
+    // ── Productos ──
+    const lista = document.getElementById('productos-confirmacion');
+    if (carritoGuardado.length > 0) {
+      lista.innerHTML = carritoGuardado.map(item => `
+        <div class="prod-item">
+          <div class="prod-emoji">${emojis[item.categoria] || emojiDefault}</div>
+          <div class="prod-info">
+            <strong>${item.nombre}</strong>
+            <span>${item.categoria || 'Artesanía'} · ×${item.cantidad}</span>
+          </div>
+          <span class="prod-precio">${formatMXN(item.precio * item.cantidad)}</span>
+        </div>
+      `).join('');
+    } else {
+      lista.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;">No se encontraron productos del pedido.</p>';
+    }
+  </script>
+
+</body>
+</html>
