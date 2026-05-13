@@ -216,11 +216,12 @@
           </div>
           <div class="form-group">
             <label>Código Postal <span class="req">*</span></label>
-            <input type="text" id="f-cp" placeholder="00000" maxlength="5" />
+            <input type="text" id="f-cp" placeholder="00000" maxlength="5" oninput="buscarCP(this.value)" />
+            <span class="input-hint" id="cp-status"></span>
           </div>
           <div class="form-group">
             <label>Ciudad <span class="req">*</span></label>
-            <input type="text" id="f-ciudad" placeholder="Ej. Oaxaca de Juárez" />
+            <input type="text" id="f-ciudad" placeholder="Se llena automático con el CP" />
           </div>
           <div class="form-group">
             <label>Estado <span class="req">*</span></label>
@@ -565,8 +566,60 @@
       setTimeout(() => window.location.href = 'confirmacion.html', 1500);
     }
 
+    // ── API Códigos Postales México ──
+    let cpTimer = null;
+    async function buscarCP(cp) {
+      const status  = document.getElementById('cp-status');
+      if (cp.length < 5) { status.textContent = ''; return; }
+      status.textContent = 'Buscando...';
+      clearTimeout(cpTimer);
+      cpTimer = setTimeout(async () => {
+        try {
+          const res  = await fetch(`https://api.copomex.com/query/info_cp/${cp}?type=simplified&token=pruebas`);
+          const data = await res.json();
+          if (data.error) { status.textContent = 'CP no encontrado'; return; }
+          const info = Array.isArray(data) ? data[0] : data;
+          document.getElementById('f-ciudad').value = info.response?.municipio || info.municipio || '';
+          const estado  = info.response?.estado || info.estado || '';
+          const select  = document.getElementById('f-estado');
+          // Intentar seleccionar el estado en el select
+          for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].text.toLowerCase().includes(estado.toLowerCase())) {
+              select.selectedIndex = i; break;
+            }
+          }
+          status.textContent = `✓ ${info.response?.municipio || ''}, ${estado}`;
+          status.style.color = 'var(--verde)';
+        } catch(e) {
+          status.textContent = 'No se pudo verificar el CP';
+          status.style.color = 'var(--text-light)';
+        }
+      }, 600);
+    }
+
+    // ── API Tipo de cambio ──
+    async function cargarTipoCambioEnvio() {
+      try {
+        const res  = await fetch('https://open.er-api.com/v6/latest/MXN');
+        const data = await res.json();
+        if (data.result === 'success') {
+          const usd = data.rates.USD;
+          // Mostrar equivalente en USD en el resumen
+          const totalEl = document.getElementById('r-total');
+          if (totalEl) {
+            const mxn = totalEl.textContent.replace(/[^0-9.]/g,'');
+            if (mxn) {
+              const usdEquiv = (parseFloat(mxn) * usd).toFixed(2);
+              totalEl.title = `~$${usdEquiv} USD`;
+            }
+          }
+        }
+      } catch(e) {}
+    }
+
     // ── Init ──
     renderResumen();
+    cargarTipoCambioEnvio();
   </script>
 
 </body>

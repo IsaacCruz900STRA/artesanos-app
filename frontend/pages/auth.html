@@ -66,7 +66,13 @@
     .pendiente-card .p-email { font-weight: 700; color: #5a3a00; }
 
     footer { background: var(--text); color: #aaa; padding: 1.2rem; text-align: center; font-size: 0.85rem; }
+
+    /* reCAPTCHA */
+    .recaptcha-wrap { display: flex; justify-content: center; margin: 0.8rem 0 1rem; }
+    .recaptcha-error { font-size: 0.82rem; color: var(--terracota); margin-top: -0.6rem; margin-bottom: 0.6rem; display: none; }
   </style>
+  <!-- reCAPTCHA v2 -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -97,6 +103,10 @@
             <label>Contraseña</label>
             <input type="password" id="login-password" placeholder="••••••••" />
           </div>
+          <div class="recaptcha-wrap">
+            <div class="g-recaptcha" id="recaptcha-login" data-sitekey="6LcswOgsAAAANhbT6PvlrKjYi4bWtGb94XR-q2I"></div>
+          </div>
+          <p class="recaptcha-error" id="recaptcha-login-error">Por favor completa el reCAPTCHA</p>
           <button class="btn-submit" id="btn-login" onclick="login()">Iniciar sesión</button>
         </div>
 
@@ -145,6 +155,10 @@
               <label>Contraseña</label>
               <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" />
             </div>
+            <div class="recaptcha-wrap">
+              <div class="g-recaptcha" id="recaptcha-register" data-sitekey="6LcswOgsAAAANhbT6PvlrKjYi4bWtGb94XR-q2I"></div>
+            </div>
+            <p class="recaptcha-error" id="recaptcha-register-error">Por favor completa el reCAPTCHA</p>
             <button class="btn-submit" id="btn-register" onclick="register()">Crear cuenta</button>
           </div>
         </div>
@@ -184,6 +198,15 @@
       const email    = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const btn      = document.getElementById('btn-login');
+
+      // Validar reCAPTCHA
+      const captchaToken = grecaptcha.getResponse(grecaptcha.render ? undefined : 0);
+      const captchaEl = document.getElementById('recaptcha-login-error');
+      if (!captchaToken) {
+        captchaEl.style.display = 'block';
+        return;
+      }
+      captchaEl.style.display = 'none';
 
       if (!email || !password) {
         mostrarMensaje('msg-login', 'Por favor llena todos los campos', 'error');
@@ -234,6 +257,15 @@
       const email    = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
       const btn      = document.getElementById('btn-register');
+
+      // Validar reCAPTCHA
+      const captchaToken = grecaptcha.getResponse(1);
+      const captchaEl = document.getElementById('recaptcha-register-error');
+      if (!captchaToken) {
+        captchaEl.style.display = 'block';
+        return;
+      }
+      captchaEl.style.display = 'none';
 
       if (!nombre || !email || !password) {
         mostrarMensaje('msg-register', 'Por favor llena todos los campos', 'error');

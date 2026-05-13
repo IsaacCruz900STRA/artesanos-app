@@ -197,6 +197,23 @@
     const emojiDefault = '🎨';
     let todosLosProductos = [];
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    let tipoCambio = null;
+
+    // ── API Tipo de cambio ──
+    async function cargarTipoCambio() {
+      try {
+        const res  = await fetch('https://open.er-api.com/v6/latest/MXN');
+        const data = await res.json();
+        if (data.result === 'success') {
+          tipoCambio = data.rates.USD;
+        }
+      } catch(e) { console.log('No se pudo cargar tipo de cambio'); }
+    }
+
+    function mxnAusd(precio) {
+      if (!tipoCambio) return '';
+      return ' (~$' + (precio * tipoCambio).toFixed(2) + ' USD)';
+    }
 
     // ── NAV DINÁMICO ──
     const usuario = JSON.parse(localStorage.getItem('usuario'));
@@ -282,7 +299,7 @@
             <h3>${p.nombre}</h3>
             <p>${p.descripcion}</p>
             <div class="producto-footer">
-              <span class="producto-precio">$${Number(p.precio).toLocaleString('es-MX')}</span>
+              <span class="producto-precio">$${Number(p.precio).toLocaleString('es-MX')}<span style="font-size:0.75rem;color:var(--text-light);font-weight:400;">${mxnAusd(p.precio)}</span></span>
               <button class="btn-agregar" onclick="event.stopPropagation(); agregarAlCarrito(${p.id_producto}, '${p.nombre}', ${p.precio}, '${p.categoria || ''}')">+ Agregar</button>
             </div>
           </div>
@@ -376,6 +393,7 @@
     renderCarrito();
     cargarCategorias();
     cargarProductos();
+    cargarTipoCambio();
   </script>
 
 </body>

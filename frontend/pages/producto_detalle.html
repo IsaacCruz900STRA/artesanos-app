@@ -159,6 +159,23 @@
     const API    = 'http://localhost:3000/api';
     const emojis = { 'Textiles':'🧵','Cerámica':'🏺','Joyería':'💎','Mezcal':'🥃','Alimentos':'🌶️','Madera':'🪆' };
     const emojiDefault = '🎨';
+    let tipoCambio = null;
+
+    // ── API Tipo de cambio ──
+    async function cargarTipoCambio() {
+      try {
+        const res  = await fetch('https://open.er-api.com/v6/latest/MXN');
+        const data = await res.json();
+        if (data.result === 'success') {
+          tipoCambio = data.rates.USD;
+          // Actualizar precio en USD si ya se cargó el producto
+          const el = document.getElementById('precio-usd');
+          if (el && productoActual) {
+            el.textContent = '~$' + (productoActual.precio * tipoCambio).toFixed(2) + ' USD';
+          }
+        }
+      } catch(e) {}
+    }
 
     // ── NAV ──
     const usuario = JSON.parse(localStorage.getItem('usuario'));
@@ -248,7 +265,7 @@
           <div class="producto-info">
             ${p.categoria ? `<span class="cat-tag">${p.categoria}</span>` : ''}
             <h1 class="producto-nombre">${p.nombre}</h1>
-            <div class="producto-precio">${formatMXN(p.precio)} <span style="font-size:0.9rem;color:var(--text-light);font-weight:400;">MXN</span></div>
+            <div class="producto-precio">${formatMXN(p.precio)} <span style="font-size:0.9rem;color:var(--text-light);font-weight:400;">MXN</span> <span id="precio-usd" style="font-size:0.85rem;color:var(--text-light);font-weight:400;">${tipoCambio ? '~$'+(p.precio*tipoCambio).toFixed(2)+' USD' : ''}</span></div>
             <p class="producto-descripcion">${p.descripcion}</p>
 
             <!-- Cantidad -->
@@ -378,6 +395,7 @@
     }
 
     cargarProducto();
+    cargarTipoCambio();
   </script>
 
 </body>
