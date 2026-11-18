@@ -1,10 +1,10 @@
-# 🏺 ArtesanosMX
+# ArtesanosMX
 
 Plataforma de comercio electrónico para conectar artesanos mexicanos con compradores. Desarrollada con Node.js + Express + PostgreSQL.
 
 ---
 
-## 📋 Requisitos previos
+## Requisitos previos
 
 Antes de empezar, asegúrate de tener instalado:
 
@@ -16,7 +16,7 @@ Antes de empezar, asegúrate de tener instalado:
 
 ---
 
-## 🚀 Instalación paso a paso
+## Instalación paso a paso
 
 ### 1. Clonar el repositorio
 
@@ -108,7 +108,7 @@ VALUES (
 );
 ```
 
-> ⚠️ **Nota:** El hash de la contraseña del admin corresponde a `admin123` con bcrypt. Puedes cambiarla después desde el panel.
+> **Nota:** El hash de la contraseña del admin corresponde a `admin123` con bcrypt. Puedes cambiarla después desde el panel.
 
 ---
 
@@ -142,7 +142,7 @@ JWT_SECRET=mi_clave_secreta_super_segura_2026
 PORT=3000
 ```
 
-> 💡 `JWT_SECRET` puede ser cualquier texto largo y aleatorio. Solo asegúrate de que todos usen el mismo valor.
+> `JWT_SECRET` puede ser cualquier texto largo y aleatorio. Solo asegúrate de que todos usen el mismo valor.
 
 ---
 
@@ -166,8 +166,8 @@ Deberías ver en la consola:
 
 ```
 [nodemon] starting `node server.js`
-✅ Conectado a PostgreSQL
-🚀 Servidor corriendo en http://localhost:3000
+[OK] Conectado a PostgreSQL
+[OK] Servidor corriendo en http://localhost:3000
 ```
 
 ---
@@ -188,7 +188,7 @@ El frontend son archivos HTML estáticos. Tienes dos opciones:
 
 ---
 
-## 🗂️ Estructura del proyecto
+## Estructura del proyecto
 
 ```
 artesanos-app/
@@ -240,7 +240,7 @@ artesanos-app/
 
 ---
 
-## 👥 Usuarios de prueba
+## Usuarios de prueba
 
 | Rol | Email | Contraseña |
 |---|---|---|
@@ -250,7 +250,7 @@ artesanos-app/
 
 ---
 
-## 🔌 Endpoints principales de la API
+## Endpoints principales de la API
 
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -268,7 +268,7 @@ artesanos-app/
 
 ---
 
-## ❗ Problemas frecuentes
+## Problemas frecuentes
 
 **El servidor no conecta a PostgreSQL:**
 - Verifica que PostgreSQL esté corriendo
@@ -289,7 +289,7 @@ artesanos-app/
 
 ---
 
-## 🛠️ Tecnologías usadas
+## Tecnologías usadas
 
 - **Frontend:** HTML5, CSS3, JavaScript Vanilla
 - **Backend:** Node.js 18, Express.js 4
@@ -301,6 +301,6 @@ artesanos-app/
 
 ---
 
-## 📧 Contacto
+## Contacto
 
-Desarrollado por **Isaac Ramón Méndez** — Programación Web 2026
+Desarrollado por **Isaac Cruz** — Programación Web 2026
