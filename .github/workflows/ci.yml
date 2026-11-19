@@ -38,12 +38,12 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Instalar dependencias
-        run: npm ci
+        run:  npm ci --ignore-scripts
 
       - name: Ejecutar pruebas
         run: npm test
 
       - name: Analizar calidad con SonarQube
-        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
