@@ -16,6 +16,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      pull-requests: read
+
     defaults:
       run:
         working-directory: backend
@@ -23,6 +27,8 @@ jobs:
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Configurar Node.js
         uses: actions/setup-node@v5
@@ -36,3 +42,8 @@ jobs:
 
       - name: Ejecutar pruebas
         run: npm test
+
+      - name: Analizar calidad con SonarQube
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
