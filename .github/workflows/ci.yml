@@ -30,5 +30,5 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-        -name: Ejecutar pruebas
-        -run: npm test
+        - name: Ejecutar pruebas
+          run: npm test
