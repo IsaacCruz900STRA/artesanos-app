@@ -12,7 +12,10 @@ const crearUsuario = async (nombre, email, password, rol) => {
 };
 
 const buscarPorEmail = async (email) => {
-  const result = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+  const result = await db.query(
+    'SELECT * FROM usuarios WHERE LOWER(email) = LOWER($1)',
+    [email.trim()]
+  );
   return result.rows[0];
 };
 
