@@ -225,10 +225,56 @@ describe('Pruebas de autenticación', () => {
       expect(response.body.estado).toBe('pendiente');
     });
 
+
+
+
+
+
+
+
+
+test('Debe actualizar una contraseña antigua sin hash al iniciar sesión', async () => {
+  usuarioModel.buscarPorEmail.mockResolvedValue({
+    id_usuario: 3,
+    nombre: 'Carlos',
+    email: 'carlos@test.com',
+    password: '123456',
+    rol: 'cliente',
+    estado: 'activo'
+  });
+
+  db.query.mockResolvedValue({ rows: [] });
+
+  const response = await request(app)
+    .post('/api/auth/login')
+    .send({
+      email: 'carlos@test.com',
+      password: '123456'
+    });
+
+  expect(response.status).toBe(200);
+  expect(response.body.token).toBeDefined();
+  expect(db.query).toHaveBeenCalledWith(
+    'UPDATE usuarios SET password = $1 WHERE LOWER(email) = LOWER($2)',
+    [
+      expect.any(String),
+      'carlos@test.com'
+    ]
+  );
+});
+
+
+
+
+
+
+
+
     test('Debe responder 500 si ocurre un error al iniciar sesión', async () => {
       usuarioModel.buscarPorEmail.mockRejectedValue(
         new Error('Error de prueba')
       );
+      
 
       const response = await request(app)
         .post('/api/auth/login')
