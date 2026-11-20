@@ -3,9 +3,26 @@ const jwt = require('jsonwebtoken');
 const usuarioModel = require('../models/usuario.model');
 const db = require('../config/db');
 
+const compararPassword = async (password, storedPassword, email) => {
+  if (/^\$2[aby]\$\d{2}\$/.test(storedPassword)) {
+    return bcrypt.compare(password, storedPassword);
+  }
+
+  if (password === storedPassword) {
+    const hash = await bcrypt.hash(password, 10);
+    await db.query(
+      'UPDATE usuarios SET password = $1 WHERE LOWER(email) = LOWER($2)',
+      [hash, email]
+    );
+  }
+
+  return password === storedPassword;
+};
+
 const register = async (req, res) => {
   try {
-    const { nombre, email, password, rol } = req.body;
+    const { nombre, password, rol } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
 
     // Verificar si ya existe
     const existe = await usuarioModel.buscarPorEmail(email);
@@ -66,7 +83,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim();
+    const { password } = req.body;
 
     // Buscar usuario
     const usuario = await usuarioModel.buscarPorEmail(email);
@@ -75,7 +93,7 @@ const login = async (req, res) => {
     }
 
     // Verificar contraseña
-    const valido = await bcrypt.compare(password, usuario.password);
+    const valido = await compararPassword(password, usuario.password, usuario.email);
     if (!valido) {
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }

@@ -40,6 +40,13 @@
       transition: border-color 0.2s; outline: none; background: var(--white);
     }
     .form-group input:focus { border-color: var(--terracota); }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 4.5rem; }
+    .toggle-password {
+      position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+      border: none; background: transparent; color: var(--terracota);
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0.25rem;
+    }
 
     .rol-selector { display: flex; gap: 0.8rem; margin-bottom: 1.2rem; }
     .rol-btn { flex: 1; padding: 0.7rem; border: 2px solid #E8E0D5; border-radius: 8px; background: var(--white); cursor: pointer; text-align: center; transition: all 0.2s; }
@@ -67,12 +74,7 @@
 
     footer { background: var(--text); color: #aaa; padding: 1.2rem; text-align: center; font-size: 0.85rem; }
 
-    /* reCAPTCHA */
-    .recaptcha-wrap { display: flex; justify-content: center; margin: 0.8rem 0 1rem; }
-    .recaptcha-error { font-size: 0.82rem; color: var(--terracota); margin-top: -0.6rem; margin-bottom: 0.6rem; display: none; }
   </style>
-  <!-- reCAPTCHA v2 -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -101,12 +103,13 @@
           </div>
           <div class="form-group">
             <label>Contraseña</label>
-            <input type="password" id="login-password" placeholder="••••••••" />
+            <div class="password-wrap">
+              <input type="password" id="login-password" placeholder="••••••••" />
+              <button type="button" class="toggle-password" id="toggle-login-password"
+                      onclick="togglePassword('login-password', 'toggle-login-password')"
+                      aria-label="Mostrar contraseña" aria-pressed="false">Ver</button>
+            </div>
           </div>
-          <div class="recaptcha-wrap">
-            <div class="g-recaptcha" id="recaptcha-login" data-sitekey="6LcswOgsAAAANhbT6PvlrKjYi4bWtGb94XR-q2I"></div>
-          </div>
-          <p class="recaptcha-error" id="recaptcha-login-error">Por favor completa el reCAPTCHA</p>
           <button class="btn-submit" id="btn-login" onclick="login()">Iniciar sesión</button>
         </div>
 
@@ -155,10 +158,6 @@
               <label>Contraseña</label>
               <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" />
             </div>
-            <div class="recaptcha-wrap">
-              <div class="g-recaptcha" id="recaptcha-register" data-sitekey="6LcswOgsAAAANhbT6PvlrKjYi4bWtGb94XR-q2I"></div>
-            </div>
-            <p class="recaptcha-error" id="recaptcha-register-error">Por favor completa el reCAPTCHA</p>
             <button class="btn-submit" id="btn-register" onclick="register()">Crear cuenta</button>
           </div>
         </div>
@@ -194,19 +193,21 @@
       el.style.display = 'block';
     }
 
+    function togglePassword(inputId, buttonId) {
+      const input = document.getElementById(inputId);
+      const button = document.getElementById(buttonId);
+      const mostrar = input.type === 'password';
+
+      input.type = mostrar ? 'text' : 'password';
+      button.textContent = mostrar ? 'Ocultar' : 'Ver';
+      button.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      button.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
+    }
+
     async function login() {
       const email    = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const btn      = document.getElementById('btn-login');
-
-      // Validar reCAPTCHA
-      const captchaToken = grecaptcha.getResponse(grecaptcha.render ? undefined : 0);
-      const captchaEl = document.getElementById('recaptcha-login-error');
-      if (!captchaToken) {
-        captchaEl.style.display = 'block';
-        return;
-      }
-      captchaEl.style.display = 'none';
 
       if (!email || !password) {
         mostrarMensaje('msg-login', 'Por favor llena todos los campos', 'error');
@@ -257,15 +258,6 @@
       const email    = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
       const btn      = document.getElementById('btn-register');
-
-      // Validar reCAPTCHA
-      const captchaToken = grecaptcha.getResponse(1);
-      const captchaEl = document.getElementById('recaptcha-register-error');
-      if (!captchaToken) {
-        captchaEl.style.display = 'block';
-        return;
-      }
-      captchaEl.style.display = 'none';
 
       if (!nombre || !email || !password) {
         mostrarMensaje('msg-register', 'Por favor llena todos los campos', 'error');
