@@ -18,4 +18,13 @@ app.use('/api/artesanos', require('./routes/artesano.routes'));
 app.use('/api/admin',     require('./routes/admin.routes'));
 app.use('/api/upload',    require('./routes/upload.routes'));
 
+// ── Servir frontend ──
+const frontendPath = path.join(__dirname, '..', 'frontend');
+
+app.use(express.static(frontendPath));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
 module.exports = app;
